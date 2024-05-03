@@ -24,6 +24,7 @@ namespace WebApiCSharp.GenerateCodeFiles
 
         public GenerateRosMiddleware(PLPsData data, InitializeProject initProj)
         {
+            Console.WriteLine(initProj.RosTarget.RosDistribution + "          GJHSDFJGHDFJHJGaaaaaaaaaaa");
             if(String.IsNullOrEmpty(initProj.RosTarget.WorkspaceDirectortyPath)) return;
             string rosWorkspaceSrcDirPath = GenerateFilesUtils.AppendPath(initProj.RosTarget.WorkspaceDirectortyPath, "src");
             string rosMiddlewareDirectory = GenerateFilesUtils.AppendPath(rosWorkspaceSrcDirPath, ROS_MIDDLEWARE_PACKAGE_NAME);

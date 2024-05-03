@@ -666,19 +666,19 @@
     ]
   },
   "packageFolders": {
-    "/home/natalie/.nuget/packages/": {}
+    "/home/michel/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/natalie/AOS/AOS-WebAPI2/WebApiCSharp.csproj",
+      "projectUniqueName": "/home/michel/AOS/check/WebApiCSharp.csproj",
       "projectName": "WebApiCSharp",
-      "projectPath": "/home/natalie/AOS/AOS-WebAPI2/WebApiCSharp.csproj",
-      "packagesPath": "/home/natalie/.nuget/packages/",
-      "outputPath": "/home/natalie/AOS/AOS-WebAPI2/obj/",
+      "projectPath": "/home/michel/AOS/check/WebApiCSharp.csproj",
+      "packagesPath": "/home/michel/.nuget/packages/",
+      "outputPath": "/home/michel/AOS/check/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/natalie/.nuget/NuGet/NuGet.Config"
+        "/home/michel/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
@@ -741,5 +741,27 @@
         "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.419/RuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'MongoDB.Driver' 2.12.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7j9m-j397-g4wx",
+      "libraryId": "MongoDB.Driver",
+      "targetGraphs": [
+        "net6.0"
+      ]
+    },
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'MongoDB.Driver' 2.12.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-p9rv-qgqw-jx2w",
+      "libraryId": "MongoDB.Driver",
+      "targetGraphs": [
+        "net6.0"
+      ]
+    }
+  ]
 }

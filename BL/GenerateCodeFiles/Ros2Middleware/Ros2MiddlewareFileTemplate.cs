@@ -27,76 +27,84 @@ namespace WebApiCSharp.GenerateCodeFiles
         public static string GetPackageFilefoxy(InitializeProject initProj)// CHANGE DEPEND -> <build_depend>roscpp</build_depend> <build_depend>rospy</build_depend> <build_depend>message_generation</build_depend> <build_export_depend>roscpp</build_export_depend> <build_export_depend>rospy</build_export_depend>
   
         {
-            string file = @"<?xml version=""1.0""?>
-<package format=""2"">
+                string file = @"<?xml version=""1.0""?>
+<package format=""3"">
   <name>" + GenerateRos2Middleware.ROS2_MIDDLEWARE_PACKAGE_NAME + @"</name>
   <version>0.0.0</version>
   <description>The " + GenerateRos2Middleware.ROS2_MIDDLEWARE_PACKAGE_NAME + @" package</description>
 
-  <maintainer email=""or@todo.todo"">or</maintainer>
-
+  <maintainer email=""mic@todo.todo"">mic</maintainer>
 
   <license>TODO</license>
 
-
-
   <buildtool_depend>ament_cmake</buildtool_depend>
-
-<depend>ament_cmake</depend>
-<depend>rclcpp</depend>
-<depend>std_msgs</depend>
-<depend>message_generation</depend>
-
-<export>
-  <build_type>ament_cmake</build_type>
+" + GetPackageFileTargetProjectDependencies(initProj) + @"
+ 
+  <build_depend>rclcpp</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>lifecycle_msgs</build_depend>
+  <build_depend>nav2_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_export_depend>rclcpp</build_export_depend>
+  <build_export_depend>geometry_msgs</build_export_depend>
+  <build_export_depend>lifecycle_msgs</build_export_depend>
+  <build_export_depend>nav2_msgs</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
   <exec_depend>rclcpp</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>lifecycle_msgs</exec_depend>
+  <exec_depend>nav2_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>message_runtime</exec_depend>
-</export>
 
+  <export>
 
   </export>
 </package>";
-            return file;
-        }
-
-        public static string GetCMakeListsFilefoxy()//changed 
+                return file;
+            }
+        
+        public static string GetCMakeListsFilefoxy()
         {
-            string file = @"cmake_minimum_required(VERSION 3.0.2)
+            string file = @"
+cmake_minimum_required(VERSION 3.5)
 project(" + GenerateRos2Middleware.ROS2_MIDDLEWARE_PACKAGE_NAME + @")
- 
+
+# Find ROS 2 packages
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
+find_package(rclcpp)
+find_package(rclpy REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(message_generation REQUIRED)
 find_package(genmsg REQUIRED)
 
+# Export dependencies
 ament_export_dependencies(
-  rclcpp
-  std_msgs
-  message_runtime
+    rclcpp
+    rclpy
+    std_msgs
+    message_runtime
 )
 
-
-
-  
-
- 
- generate_messages(
-   DEPENDENCIES
-   std_msgs 
- )
-
- 
-catkin_package(
-CATKIN_DEPENDS message_runtime
+# Generate messages
+generate_messages(
+    DEPENDENCIES
+    std_msgs 
 )
 
-include_directories( 
-# include
-  ${catkin_INCLUDE_DIRS}
+# Include directories
+include_directories(
+    # include
+    ${ament_INCLUDE_DIRS}
 )
- ";
+
+# Install
+install(
+    DIRECTORY include/
+    DESTINATION include
+)
+
+ament_package()
+";
             return file;
         }
 
@@ -436,7 +444,7 @@ include_directories(
                         result += GenerateFilesUtils.GetIndentationStr(4, 4, "assignGlobalVar[\"" + assign.GlobalVarName + "\"] = " + assign.Value);
                     }
                 }
-
+              Console.WriteLine("ssssssssssssssssssssssss");
                 if(!String.IsNullOrEmpty(glue.ResponseFromStringLocalVariable))
                 {
                     result += GenerateFilesUtils.GetIndentationStr(3, 4, "moduleResponse = str(" + glue.ResponseFromStringLocalVariable + ")");

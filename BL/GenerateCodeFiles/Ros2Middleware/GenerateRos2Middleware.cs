@@ -32,11 +32,11 @@ namespace WebApiCSharp.GenerateCodeFiles
 
             try
             {
-            GenerateFilesUtils.RunApplicationUntilEnd("ros2_create_pkg", rosWorkspaceSrcDirPath, ROS2_MIDDLEWARE_PACKAGE_NAME + " std_msgs rospy roscpp");
+            GenerateFilesUtils.RunApplicationUntilEnd(ROS2_MIDDLEWARE_PACKAGE_NAME, rosWorkspaceSrcDirPath, "ros2 pkg create" + "--build-type ament_python --dependencies std_msgs rclpy rclcpp");
             }
             catch(Exception e)
             {
-                throw new Exception("ROS workspace path not found: '"+rosWorkspaceSrcDirPath+"'");
+                throw new Exception("ROS2 workspace path not found: '"+rosWorkspaceSrcDirPath+"'");
             }
             GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/CMakeLists.txt", Ros2MiddlewareFileTemplate.GetCMakeListsFilefoxy());
 

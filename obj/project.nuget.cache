@@ -1,25 +1,46 @@
 {
   "version": 2,
-  "dgSpecHash": "vD3pOBGuV20YTx1hUz28abHI6wvxUoLc408wsYSvqlp8PoykgzzB8cqWM2OhG2fVNJAiDqpQ+GBfK1hbaZx1BA==",
+  "dgSpecHash": "vrz10QIEvKRK6i/1ZkOkuRQvk0PwHOM3vp4KSVwrB06bs5n6Ja/Z4UhMduE1Db5sH/zZX41NHAzvKkuqEAS7eQ==",
   "success": true,
-  "projectFilePath": "/home/natalie/AOS/AOS-WebAPI2/WebApiCSharp.csproj",
+  "projectFilePath": "/home/michel/AOS/check/WebApiCSharp.csproj",
   "expectedPackageFiles": [
-    "/home/natalie/.nuget/packages/dnsclient/1.4.0/dnsclient.1.4.0.nupkg.sha512",
-    "/home/natalie/.nuget/packages/microsoft.extensions.apidescription.server/3.0.0/microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
-    "/home/natalie/.nuget/packages/microsoft.netcore.platforms/2.1.2/microsoft.netcore.platforms.2.1.2.nupkg.sha512",
-    "/home/natalie/.nuget/packages/microsoft.openapi/1.6.3/microsoft.openapi.1.6.3.nupkg.sha512",
-    "/home/natalie/.nuget/packages/mongodb.bson/2.12.2/mongodb.bson.2.12.2.nupkg.sha512",
-    "/home/natalie/.nuget/packages/mongodb.driver/2.12.0/mongodb.driver.2.12.0.nupkg.sha512",
-    "/home/natalie/.nuget/packages/mongodb.driver.core/2.12.0/mongodb.driver.core.2.12.0.nupkg.sha512",
-    "/home/natalie/.nuget/packages/mongodb.libmongocrypt/1.2.0/mongodb.libmongocrypt.1.2.0.nupkg.sha512",
-    "/home/natalie/.nuget/packages/sharpcompress/0.23.0/sharpcompress.0.23.0.nupkg.sha512",
-    "/home/natalie/.nuget/packages/swashbuckle.aspnetcore/5.6.3/swashbuckle.aspnetcore.5.6.3.nupkg.sha512",
-    "/home/natalie/.nuget/packages/swashbuckle.aspnetcore.swagger/5.6.3/swashbuckle.aspnetcore.swagger.5.6.3.nupkg.sha512",
-    "/home/natalie/.nuget/packages/swashbuckle.aspnetcore.swaggergen/5.6.3/swashbuckle.aspnetcore.swaggergen.5.6.3.nupkg.sha512",
-    "/home/natalie/.nuget/packages/swashbuckle.aspnetcore.swaggerui/5.6.3/swashbuckle.aspnetcore.swaggerui.5.6.3.nupkg.sha512",
-    "/home/natalie/.nuget/packages/system.buffers/4.5.1/system.buffers.4.5.1.nupkg.sha512",
-    "/home/natalie/.nuget/packages/system.runtime.compilerservices.unsafe/5.0.0/system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512",
-    "/home/natalie/.nuget/packages/system.text.encoding.codepages/4.5.1/system.text.encoding.codepages.4.5.1.nupkg.sha512"
+    "/home/michel/.nuget/packages/dnsclient/1.4.0/dnsclient.1.4.0.nupkg.sha512",
+    "/home/michel/.nuget/packages/microsoft.extensions.apidescription.server/3.0.0/microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
+    "/home/michel/.nuget/packages/microsoft.netcore.platforms/2.1.2/microsoft.netcore.platforms.2.1.2.nupkg.sha512",
+    "/home/michel/.nuget/packages/microsoft.openapi/1.6.3/microsoft.openapi.1.6.3.nupkg.sha512",
+    "/home/michel/.nuget/packages/mongodb.bson/2.12.2/mongodb.bson.2.12.2.nupkg.sha512",
+    "/home/michel/.nuget/packages/mongodb.driver/2.12.0/mongodb.driver.2.12.0.nupkg.sha512",
+    "/home/michel/.nuget/packages/mongodb.driver.core/2.12.0/mongodb.driver.core.2.12.0.nupkg.sha512",
+    "/home/michel/.nuget/packages/mongodb.libmongocrypt/1.2.0/mongodb.libmongocrypt.1.2.0.nupkg.sha512",
+    "/home/michel/.nuget/packages/sharpcompress/0.23.0/sharpcompress.0.23.0.nupkg.sha512",
+    "/home/michel/.nuget/packages/swashbuckle.aspnetcore/5.6.3/swashbuckle.aspnetcore.5.6.3.nupkg.sha512",
+    "/home/michel/.nuget/packages/swashbuckle.aspnetcore.swagger/5.6.3/swashbuckle.aspnetcore.swagger.5.6.3.nupkg.sha512",
+    "/home/michel/.nuget/packages/swashbuckle.aspnetcore.swaggergen/5.6.3/swashbuckle.aspnetcore.swaggergen.5.6.3.nupkg.sha512",
+    "/home/michel/.nuget/packages/swashbuckle.aspnetcore.swaggerui/5.6.3/swashbuckle.aspnetcore.swaggerui.5.6.3.nupkg.sha512",
+    "/home/michel/.nuget/packages/system.buffers/4.5.1/system.buffers.4.5.1.nupkg.sha512",
+    "/home/michel/.nuget/packages/system.runtime.compilerservices.unsafe/5.0.0/system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512",
+    "/home/michel/.nuget/packages/system.text.encoding.codepages/4.5.1/system.text.encoding.codepages.4.5.1.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'MongoDB.Driver' 2.12.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7j9m-j397-g4wx",
+      "libraryId": "MongoDB.Driver",
+      "targetGraphs": [
+        "net6.0"
+      ]
+    },
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'MongoDB.Driver' 2.12.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-p9rv-qgqw-jx2w",
+      "libraryId": "MongoDB.Driver",
+      "targetGraphs": [
+        "net6.0"
+      ]
+    }
+  ]
 }

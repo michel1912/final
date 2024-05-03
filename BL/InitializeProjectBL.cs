@@ -66,6 +66,15 @@ catkin_make
 source ~/.bashrc";
             return file;
         }
+        private static string GetBuildRos2MiddlewareBashFile(InitializeProject initProj)
+        {
+            string file = @"#!/bin/bash
+
+cd " + initProj.RosTarget.WorkspaceDirectortyPath + @"
+colcon build
+source ~/.bashrc";
+            return file;
+        }
 
         private static string GetBuildSolverBashFile(string projectName)
         {
@@ -216,7 +225,15 @@ cmake --build "+homePath+@"/AOS/AOS-Solver/build --config Release --target despo
                     GenerateSolver generateSolver = new GenerateSolver(plpData, initProj, solver);
                     if (!initProj.SolverConfiguration.IsInternalSimulation)
                     {
-                        new GenerateRosMiddleware(plpData, initProj);
+                        if (initProj.RosTarget.RosDistribution != "foxy")
+                        {
+                            new GenerateRosMiddleware(plpData, initProj);
+                        }
+                        else
+                        {
+                            Console.WriteLine("hiiiiiiiiiiiiiiiii");
+                            new GenerateRos2Middleware(plpData, initProj);
+                        }
                     }
 
                     if (!initProj.OnlyGenerateCode.Value)
@@ -240,68 +257,102 @@ cmake --build "+homePath+@"/AOS/AOS-Solver/build --config Release --target despo
             }
         }
 
-        private static void RunRosMiddleware(InitializeProject initProg)
+private static void RunRosMiddleware(InitializeProject initProg)
         {
-            //countdownEvent = new CountdownEvent(1);
-            //         GenerateFilesUtils.WriteTextFile(initProg.RosTarget.WorkspaceDirectortyPath + "/buildRosMiddlewareWrapper.sh", GetBuildRosMiddlewareBashFile(initProg), false);
-            if(initProg.MiddlewareConfiguration.KillRosCoreBeforeStarting)
+            Console.WriteLine("katolinnnnnnaaaaaaaaaaaaaaaaaa");
+            if(initProg.RosTarget.RosDistribution != "foxy"){
+                Console.WriteLine("katolinnnnnnaaaaaaaaaaaaaaaaaa7878788787878787");
+            if (initProg.MiddlewareConfiguration.KillRosCoreBeforeStarting)
             {
                 ProcessStartInfo sInfo1 = new ProcessStartInfo()
                 {
-                    //               WorkingDirectory = initProg.RosTarget.WorkspaceDirectortyPath,
-                    FileName = "killall",//rosnode
-                    Arguments = "-9 rosmaster",//kill --all
+                    FileName = "killall",
+                    Arguments = "-9 rosmaster",
                     UseShellExecute = true,
-                    // RedirectStandardOutput = true
                 };
                 Process process1 = new Process();
                 process1.StartInfo = sInfo1;
                 process1.Start();
             }
-            // sInfo = new ProcessStartInfo()
-            // {
-            //     //               WorkingDirectory = initProg.RosTarget.WorkspaceDirectortyPath,
-            //     FileName = "roscore",
-            //     Arguments = "",
-            //     UseShellExecute = true,
-            //     // RedirectStandardOutput = true
 
-            // };
-            //  process = new Process();
-            // process.StartInfo = sInfo;
-            // process.Start();
-
-
-
+          
             ProcessStartInfo sInfo = new ProcessStartInfo()
             {
                 WorkingDirectory = initProg.RosTarget.WorkspaceDirectortyPath,
                 FileName = "roslaunch",
                 Arguments = initProg.RosTarget.TargetProjectLaunchFile,
                 UseShellExecute = true,
-                // RedirectStandardOutput = true
-
             };
             Process process = new Process();
             process.StartInfo = sInfo;
             process.Start();
 
+    
             Thread.Sleep(Convert.ToInt32(initProg.RosTarget.TargetProjectInitializationTimeInSeconds.Value * 1000));
+
+        
             sInfo = new ProcessStartInfo()
             {
                 FileName = "rosrun",
                 Arguments = "aos_ros_middleware_auto aos_ros_middleware_auto_node.py",
+                UseShellExecute = true,
             };
             process = new Process();
             process.StartInfo = sInfo;
             process.Start();
-            
+          }
+          else{
+            Console.WriteLine("katolinnnnnnaaaaaaaaaaaaaaaaaa");
+            if (initProg.MiddlewareConfiguration.KillRosCoreBeforeStarting)
+            {
+                // Kill any existing ROS 2 processes
+                ProcessStartInfo sInfo1 = new ProcessStartInfo()
+                {
+                    FileName = "pkill",
+                    Arguments = "-9 ros2",
+                    UseShellExecute = true,
+                };
+                Process process1 = new Process();
+                process1.StartInfo = sInfo1;
+                process1.Start();
+            }
+
+            // Start the ROS 2 launch file
+            Console.Write("anaonnn7878");
+            ProcessStartInfo sInfo = new ProcessStartInfo()
+            {
+                WorkingDirectory = initProg.RosTarget.WorkspaceDirectortyPath,
+                FileName = "ros2",
+                Arguments = "launch" + initProg.RosTarget.TargetProjectLaunchFile,
+                UseShellExecute = true,
+            };
+            Process process = new Process();
+            process.StartInfo = sInfo;
+            process.Start();
+
+            // Wait for the specified initialization time
+            Thread.Sleep(Convert.ToInt32(initProg.RosTarget.TargetProjectInitializationTimeInSeconds.Value * 1000));
+
+             Console.Write("anaonnn123");
+            // Run the ROS 2 middleware node
+            sInfo = new ProcessStartInfo()
+            {
+                FileName = "ros2",
+                Arguments = "run aos_ros2_middleware_auto aos_ros2_middleware_auto_node.py",
+                UseShellExecute = true,
+            };
+            process = new Process();
+            process.StartInfo = sInfo;
+            process.Start();
+          }
         }
         private static string BuildRosMiddleware(InitializeProject initProg)
         {
             countdownEvent = new CountdownEvent(1);
-            GenerateFilesUtils.WriteTextFile(initProg.RosTarget.WorkspaceDirectortyPath + "/buildRosMiddlewareWrapper.sh", GetBuildRosMiddlewareBashFile(initProg), true);
-            ProcessStartInfo sInfo = new ProcessStartInfo()
+            if(initProg.RosTarget.RosDistribution != "foxy")
+                GenerateFilesUtils.WriteTextFile(initProg.RosTarget.WorkspaceDirectortyPath + "/buildRosMiddlewareWrapper.sh", GetBuildRosMiddlewareBashFile(initProg), true);
+            else
+                GenerateFilesUtils.WriteTextFile(initProg.RosTarget.WorkspaceDirectortyPath + "/buildRosMiddlewareWrapper.sh", GetBuildRos2MiddlewareBashFile(initProg), true);            ProcessStartInfo sInfo = new ProcessStartInfo()
             {
                 WorkingDirectory = initProg.RosTarget.WorkspaceDirectortyPath,
                 FileName = "bash",

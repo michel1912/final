@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/natalie/AOS/AOS-WebAPI2/WebApiCSharp.csproj": {}
+    "/home/michel/AOS/check/WebApiCSharp.csproj": {}
   },
   "projects": {
-    "/home/natalie/AOS/AOS-WebAPI2/WebApiCSharp.csproj": {
+    "/home/michel/AOS/check/WebApiCSharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/natalie/AOS/AOS-WebAPI2/WebApiCSharp.csproj",
+        "projectUniqueName": "/home/michel/AOS/check/WebApiCSharp.csproj",
         "projectName": "WebApiCSharp",
-        "projectPath": "/home/natalie/AOS/AOS-WebAPI2/WebApiCSharp.csproj",
-        "packagesPath": "/home/natalie/.nuget/packages/",
-        "outputPath": "/home/natalie/AOS/AOS-WebAPI2/obj/",
+        "projectPath": "/home/michel/AOS/check/WebApiCSharp.csproj",
+        "packagesPath": "/home/michel/.nuget/packages/",
+        "outputPath": "/home/michel/AOS/check/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/natalie/.nuget/NuGet/NuGet.Config"
+          "/home/michel/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
