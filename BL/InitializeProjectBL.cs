@@ -321,9 +321,10 @@ private static void RunRosMiddleware(InitializeProject initProg)
             Console.Write("anaonnn7878");
             ProcessStartInfo sInfo = new ProcessStartInfo()
             {
+                //we have to checkkkkkkkkkkk thatttttttttttttttttt
                 WorkingDirectory = initProg.RosTarget.WorkspaceDirectortyPath,
-                FileName = "ros2",
-                Arguments = "launch" + initProg.RosTarget.TargetProjectLaunchFile,
+                FileName = initProg.RosTarget.TargetProjectLaunchFile,
+                Arguments = "ros2" + "launch" ,
                 UseShellExecute = true,
             };
             Process process = new Process();
@@ -337,8 +338,8 @@ private static void RunRosMiddleware(InitializeProject initProg)
             // Run the ROS 2 middleware node
             sInfo = new ProcessStartInfo()
             {
-                FileName = "ros2",
-                Arguments = "run aos_ros2_middleware_auto aos_ros2_middleware_auto_node.py",
+                FileName = "src/aos_ros2_middleware_auto/scripts/aos_ros2_middleware_auto_node.py",
+                Arguments = "ros2 run ",
                 UseShellExecute = true,
             };
             process = new Process();
