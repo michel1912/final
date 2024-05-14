@@ -28,22 +28,29 @@ namespace WebApiCSharp.GenerateCodeFiles
             string rosWorkspaceSrcDirPath = GenerateFilesUtils.AppendPath(initProj.RosTarget.WorkspaceDirectortyPath, "src");
             string rosMiddlewareDirectory = GenerateFilesUtils.AppendPath(rosWorkspaceSrcDirPath, ROS2_MIDDLEWARE_PACKAGE_NAME);
 
-            GenerateFilesUtils.DeleteAndCreateDirectory(rosMiddlewareDirectory, true);
+          GenerateFilesUtils.DeleteDirectory2(rosMiddlewareDirectory, true);
 
             try
             {
-            GenerateFilesUtils.RunApplicationUntilEnd(ROS2_MIDDLEWARE_PACKAGE_NAME, rosWorkspaceSrcDirPath, "ros2 pkg create" + "--build-type ament_python --dependencies std_msgs rclpy rclcpp");
+                //we have to change this command to be :
+                //ros2 pkg create aos_ros2_middleware_auto --build-type ament_python --dependencies rclpy
+                // rosWorkspaceSrcDirPath
+                Console.WriteLine(rosWorkspaceSrcDirPath + " aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            GenerateFilesUtils.RunApplicationUntilEnd("ros2" , rosWorkspaceSrcDirPath, $"pkg create {"aos_ros2_middleware_auto"} --build-type ament_python --dependencies rclpy" );
             }
             catch(Exception e)
             {
+                Console.WriteLine("besharafak" + " aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                Console.WriteLine(e);
                 throw new Exception("ROS2 workspace path not found: '"+rosWorkspaceSrcDirPath+"'");
             }
-            GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/CMakeLists.txt", Ros2MiddlewareFileTemplate.GetCMakeListsFilefoxy());
+            Console.WriteLine(rosMiddlewareDirectory + "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+            GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/setup.py", Ros2MiddlewareFileTemplate.GetCMakeListsFilefoxy());
 
             GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/package.xml",  Ros2MiddlewareFileTemplate.GetPackageFilefoxy(initProj));
 
-            Directory.CreateDirectory(rosMiddlewareDirectory + "/scripts");
-            GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/scripts/" + ROS2_MIDDLEWARE_PACKAGE_NAME + "_node.py", Ros2MiddlewareFileTemplate.GetAosRos2MiddlewareNodeFile(data, initProj), true);
+            // Directory.CreateDirectory(rosMiddlewareDirectory + "/mic3");
+            GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/aos_ros2_middleware_auto/" + ROS2_MIDDLEWARE_PACKAGE_NAME + "_node.py", Ros2MiddlewareFileTemplate.GetAosRos2MiddlewareNodeFile(data, initProj), true);
 
         }
 

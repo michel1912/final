@@ -59,6 +59,8 @@ namespace WebApiCSharp.Controllers
                 errors.Add("The request contains SolverConfiguration.LoadBeliefFromDB=='true', but there is no saved belief.");
                 return StatusCode(501, new { Errors = errors, Remarks = remarks });
             }
+
+            Console.WriteLine("");
             InitializeProjectBL.InitializeProject(initProj, out errors, out remarks, out buildSolverOutput, out buildRosMiddlewareOutput);
             foreach(string error in errors) 
             {

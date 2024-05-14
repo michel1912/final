@@ -143,5 +143,13 @@ namespace WebApiCSharp.GenerateCodeFiles
                 Directory.CreateDirectory(dirPath);
             }
         }
+        public static void DeleteDirectory2(string dirPath, bool createDirectory = true)
+        {
+            if (Directory.Exists(dirPath))
+            {
+                Directory.Delete(dirPath, true);
+            }
+
+        }
     }
 }

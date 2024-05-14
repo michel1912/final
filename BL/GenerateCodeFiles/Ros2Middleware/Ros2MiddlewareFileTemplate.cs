@@ -98,6 +98,43 @@ ament_package()
             return file;
         }
 
+        public static string GetSetupFilefoxy()
+        {
+            string file = @"
+
+from setuptools import setup
+
+package_name = 'aos_ros2_middleware_auto'
+
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=[package_name],
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='michel',
+    maintainer_email='michel1912@github.com',
+    description='TODO: Package description',
+    license='TODO: License declaration',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+        ],
+    },
+)
+            
+ 
+
+";
+            return file;
+
+        }
+
 
         private static string GetImportsForMiddlewareNode(PLPsData data, InitializeProject initProj)// NO CHANGES NEED
         {
@@ -1116,15 +1153,13 @@ class AOS_InitEnvironmentFile:
                                                                ""ModuleResponseId"": ""initialization""}, upsert=True)
 
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     try:
-        aos_init_environment_file = AOS_InitEnvironmentFile()
-        topic_listener = AOS_TopicListenerServer()
-        command_listener = ListenToMongoDbCommands(topic_listener)
-        rclpy.spin(command_listener)
+        topic_listener = AOS_TopicListenerServer()  
+        command_listener = ListenToMongoDbCommands()
     except Exception as e:
-        register_error(str(e), traceback.format_exc(e))
+       pass
     finally:
         rclpy.shutdown()
 

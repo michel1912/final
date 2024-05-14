@@ -322,10 +322,17 @@ private static void RunRosMiddleware(InitializeProject initProg)
             ProcessStartInfo sInfo = new ProcessStartInfo()
             {
                 //we have to checkkkkkkkkkkk thatttttttttttttttttt
+                // WorkingDirectory = initProg.RosTarget.WorkspaceDirectortyPath,
+                // FileName = initProg.RosTarget.TargetProjectLaunchFile,
+                // Arguments = "ros2" + "launch" ,
+                // UseShellExecute = true,
                 WorkingDirectory = initProg.RosTarget.WorkspaceDirectortyPath,
-                FileName = initProg.RosTarget.TargetProjectLaunchFile,
-                Arguments = "ros2" + "launch" ,
-                UseShellExecute = true,
+                // Specify the ROS 2 launch executable name (ros2 launch)
+                FileName = "ros2",
+                // Specify the arguments for launching the ROS 2 launch file
+                Arguments = $"launch {initProg.RosTarget.TargetProjectLaunchFile}",
+                // UseShellExecute should be set to false when specifying command-line arguments
+                UseShellExecute = false,
             };
             Process process = new Process();
             process.StartInfo = sInfo;
@@ -338,8 +345,14 @@ private static void RunRosMiddleware(InitializeProject initProg)
             // Run the ROS 2 middleware node
             sInfo = new ProcessStartInfo()
             {
-                FileName = "src/aos_ros2_middleware_auto/scripts/aos_ros2_middleware_auto_node.py",
-                Arguments = "ros2 run ",
+                // FileName = "src/aos_ros2_middleware_auto/scripts/aos_ros2_middleware_auto_node.py",
+                // Arguments = "ros2 run ",
+                // UseShellExecute = true,
+                // Specify the ROS 2 executable name (ros2 run)
+                FileName = "ros2",
+                // Specify the arguments for running the ROS 2 node
+                Arguments = $"run aos_ros2_middleware_auto aos_ros2_middleware_auto_node",
+                // UseShellExecute should be set to false when specifying command-line arguments
                 UseShellExecute = true,
             };
             process = new Process();
