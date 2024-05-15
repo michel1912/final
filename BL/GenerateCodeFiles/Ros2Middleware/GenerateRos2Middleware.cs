@@ -13,6 +13,8 @@ namespace WebApiCSharp.GenerateCodeFiles
     public class GenerateRos2Middleware
     {
         public const string ROS2_MIDDLEWARE_PACKAGE_NAME = "aos_ros2_middleware_auto";
+        public const string console_main ="aos_ros2_middleware_auto_node = aos_ros2_middleware_auto.aos_ros2_middleware_auto_node:main";
+
 
         private static Configuration conf;
         static GenerateRos2Middleware()
@@ -45,7 +47,7 @@ namespace WebApiCSharp.GenerateCodeFiles
                 throw new Exception("ROS2 workspace path not found: '"+rosWorkspaceSrcDirPath+"'");
             }
             Console.WriteLine(rosMiddlewareDirectory + "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-            GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/setup.py", Ros2MiddlewareFileTemplate.GetCMakeListsFilefoxy());
+            GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/setup.py", Ros2MiddlewareFileTemplate.GetSetupFilefoxy(console_main));
 
             GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/package.xml",  Ros2MiddlewareFileTemplate.GetPackageFilefoxy(initProj));
 

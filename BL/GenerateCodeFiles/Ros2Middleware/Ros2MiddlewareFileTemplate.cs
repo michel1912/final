@@ -39,25 +39,20 @@ namespace WebApiCSharp.GenerateCodeFiles
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 " + GetPackageFileTargetProjectDependencies(initProj) + @"
- 
-  <build_depend>rclcpp</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>lifecycle_msgs</build_depend>
-  <build_depend>nav2_msgs</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_export_depend>rclcpp</build_export_depend>
-  <build_export_depend>geometry_msgs</build_export_depend>
-  <build_export_depend>lifecycle_msgs</build_export_depend>
-  <build_export_depend>nav2_msgs</build_export_depend>
-  <build_export_depend>std_msgs</build_export_depend>
-  <exec_depend>rclcpp</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>lifecycle_msgs</exec_depend>
-  <exec_depend>nav2_msgs</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
+
+   <depend>rclpy</depend>
+    <depend>geometry_msgs</depend>
+  <depend>nav2_msgs</depend>
+  <depend>action_msgs</depend>
+    <depend>example_interfaces</depend>
+        <depend>lifecycle_msgs</depend>
+                <depend>std_msgs</depend>
+                <depend>datetime</depend>
+                <depend>traceback</depend>
+                                <depend>pymongo</depend>
 
   <export>
-
+    <build_type>ament_python</build_type>
   </export>
 </package>";
                 return file;
@@ -98,7 +93,8 @@ ament_package()
             return file;
         }
 
-        public static string GetSetupFilefoxy()
+
+        public static string GetSetupFilefoxy(string console_main)
         {
             string file = @"
 
@@ -124,15 +120,13 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            '" + console_main + @"'
         ],
     },
 )
-            
- 
-
 ";
-            return file;
 
+            return file;
         }
 
 
