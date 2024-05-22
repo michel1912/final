@@ -138,7 +138,21 @@ setup(
 
             foreach (RosGlue glue in data.RosGlues.Values)
             {
-                imports.AddRange(glue.RosServiceActivation.Imports);
+                Console.WriteLine("112111111111111");
+                Console.WriteLine(glue.RosActionActivation.Imports[0].From);
+
+                foreach (string item in glue.RosActionActivation.Imports[0].Imports)
+                {
+                    Console.WriteLine(item);   
+                }
+                foreach (string item in glue.RosActionActivation.Imports[1].Imports)
+                {
+                    Console.WriteLine(item);   
+                }
+                Console.WriteLine(glue.RosActionActivation.Imports[1].From);
+                imports.AddRange(glue.RosActionActivation.Imports);
+                Console.WriteLine("113");
+
 
                 foreach (var lVar in glue.GlueLocalVariablesInitializations)
                 {
@@ -896,13 +910,14 @@ def updateLocalVariableValue(self, varName, value):
     string file = @"#!/usr/bin/" + pythonVersion + @"
 import datetime
 import rclpy
-from geometry_msgs.msg import Point
-from nav2_msgs.action import NavigateToPose
+#from geometry_msgs.msg import Point
+#from nav2_msgs.action import NavigateToPose
 import traceback
 import pymongo
+" + GetImportsForMiddlewareNode(data, initProj) + @"
 
-DEBUG = True
-HEAVY_LOCAL_VARS = {}
+DEBUG = " + (initProj.MiddlewareConfiguration.DebugOn ? "True" : "False") + Environment.NewLine +
+GetHeavyLocalVariablesList(data) + @"
 aosDbConnection = pymongo.MongoClient(""mongodb://localhost:27017/"")
 aosDB = aosDbConnection[""AOS""]
 aos_statisticsDB = aosDbConnection[""AOS_Statistics""]
@@ -935,8 +950,9 @@ def get_heavy_local_var_list(module_name):
         return HEAVY_LOCAL_VARS[module_name]
     else:
         return []
+" + GetLocalVariableTypeClasses(data) + @"
 
-
+    
 class ListenToMongoDbCommands:
     def _init_(self, topic_listener):
         self.current_action_sequence_id = 1

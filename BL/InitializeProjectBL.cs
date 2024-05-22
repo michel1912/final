@@ -93,8 +93,13 @@ cmake --build "+homePath+@"/AOS/AOS-Solver/build --config Release --target despo
         }
         private static void RunSolver(PLPsData data)
         {
+            Console.WriteLine(data.ProjectName + "33333333333333");
             string cmd = "cd ~/AOS/AOS-Solver/build/examples/cpp_models/" + data.ProjectName + " && ./despot_" + data.ProjectName;
+            Console.WriteLine(cmd + "   5444444444444");
+
+            Console.WriteLine(data.ProjectName + "4444444444444");
             if(true)GenerateFilesUtils.RunBashCommand(cmd, false);
+            
             else{GenerateFilesUtils.WriteTextFile(configuration.SolverPath + "/build/runSolverWrapper.sh", GetRunSolverBashFile(data), true);
              
             ProcessStartInfo sInfo = new ProcessStartInfo()
@@ -121,6 +126,8 @@ cmake --build "+homePath+@"/AOS/AOS-Solver/build --config Release --target despo
             {
                throw new Exception("There were build errors in the AOS-Solver! How to fix: 1)try to build manually, 2)find the errors, 3)correct your documentation accordingly. (Error:"+e.Message+")." );
             }}
+            Console.WriteLine(data.ProjectName + "555555555555555555555");
+
         }
         private static string BuildAosSolver(PLPsData data)
         {
@@ -199,13 +206,14 @@ cmake --build "+homePath+@"/AOS/AOS-Solver/build --config Release --target despo
 
                 PLPsData plpData = new PLPsData(out tempErrors);
                 errors.AddRange(tempErrors);
-
+                Console.WriteLine("22222222222222222222222222222222111111111111111111");
                 if(initProj.RunWithoutRebuild.Value)
                 {
                     SolversService.StopOrStartSolver(solverId, false, initProj.SolverConfiguration.PlanningTimePerMoveInSeconds);//set solver to start mode at db
-
+                    Console.WriteLine(initProj.OnlyGenerateCode.Value +"  22222222222222222222222222222222");
                     if (!initProj.OnlyGenerateCode.Value)
                     {
+                        Console.WriteLine("22222222222222222222222222222222");
                         RunSolver(plpData);//start solver process
                         RunRosMiddleware(initProj);
                         buildOutput = "request included 'RunWithoutRebuild'";

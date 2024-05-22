@@ -255,6 +255,47 @@ namespace WebApiCSharp.JsonTextModel
                                     break;
                                 }
                             }   
+                        } 
+                        //new2
+                        if(activationType == "ros_action")
+                        {
+                            RosAction ross = new RosAction();
+                            List<ImportCode> ic = new List<ImportCode>();
+                            a.RosAction = ross;
+                            int prev3=i-1;
+                            while(i < lineContent.Length)
+                            {
+                                if(i==prev3)i++;prev3=i;
+                                if(i > lineContent.Length-1)break;
+                                
+                                if(lineContent[i].Trim().StartsWith("imports:"))
+                                {
+                                    
+                                    ic.Add(GetAmImport(errorStart, lineContent[i]));
+                                    ross.ImportCode = ic.ToArray();
+                                    i++;
+                                }
+                                else if (lineContent[i].Trim().StartsWith("path:")) ross.ActionPath = lineContent[i++].Substring("path:".Length).Trim();
+                                else if(lineContent[i].Trim().StartsWith("action:")) ross.ActionName = lineContent[i++].Substring("action:".Length).Trim();
+                                else if(lineContent[i].Trim().StartsWith("parameter:"))
+                                {
+                                    if(ross.ActionParameters == null)ross.ActionParameters = new List<ActionParameters>();
+                                    ActionParameters p = new ActionParameters();
+                                    ross.ActionParameters.Add(p);
+                                    p.ActionFieldName = lineContent[i++].Substring("parameter:".Length).Replace(" ","");
+                                    while(i < lineContent.Length -2 && lineContent[i].Replace(" ","").Length==0)i++;
+                                    if(lineContent[i].Trim().StartsWith("code:"))
+                                    {
+                                        i++;
+                                        p.AssignActionFieldCode = lineContent[i++];
+                                    }
+                                    else throw new Exception(errorStart + "'code: ' is expected after 'parameter: '");
+                                }
+                                else if(IsFirstLevelSavedWord(lineContent[i]))
+                                {
+                                    break;
+                                }
+                            }   
                         }  
                     }else if(lineContent[i].Trim().StartsWith("local_variable:"))
                         {

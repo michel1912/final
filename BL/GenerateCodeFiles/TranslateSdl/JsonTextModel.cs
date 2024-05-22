@@ -39,6 +39,8 @@ namespace WebApiCSharp.JsonTextModel
     public class ModuleActivation
     {
         public RosService RosService {get;set;}
+        public RosAction RosAction {get;set;}
+
     }
 
     public class RosService
@@ -52,12 +54,35 @@ namespace WebApiCSharp.JsonTextModel
         {
             ServiceParameters = new List<ServiceParameter>();
         }
+        
     }
+    //new2
 
+
+    public class RosAction
+    {
+        public ImportCode[] ImportCode{get;set;}
+        public string ActionName {get;set;}
+        public string ActionPath {get;set;}
+        public List<ActionParameters> ActionParameters {get;set;}
+
+        public RosAction()
+        {
+            ActionParameters = new List<ActionParameters>();
+        }
+        
+    }
     public class ServiceParameter
     {
         public string ServiceFieldName{get;set;}
         public string AssignServiceFieldCode{get;set;}
+    }
+    //new2
+
+    public class ActionParameters
+    {
+        public string ActionFieldName{get;set;}
+        public string AssignActionFieldCode{get;set;}
     }
 
     public class ImportCode
@@ -94,6 +119,8 @@ namespace WebApiCSharp.JsonTextModel
         public string GlueFramework{get;set;}
 
         public ModuleResponse ModuleResponse{get;set;}
+        //new2
+
         public ModuleActivation ModuleActivation {get;set;}
         public List<LocalVariableInitialization> LocalVariablesInitialization{get;set;}
         public AmFile()

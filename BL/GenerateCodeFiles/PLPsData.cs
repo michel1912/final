@@ -1080,7 +1080,53 @@ public string GetModelHash()
                     }
                 }*/
             }
+            //new2
+            if (bRosGlue["ModuleActivation"].AsBsonDocument.Contains("RosAction"))
+            {
+                BsonDocument docAct = bRosGlue["ModuleActivation"]["RosAction"].AsBsonDocument;
+                rosGlue.RosActionActivation = new RosActionActivation();
+                rosGlue.RosActionActivation.ActionName = GetBsonStringField(docAct, "ActionName");
 
+                if (rosGlue.RosActionActivation.ActionName == null)
+                {
+                    errors.Add(plpDescription + ", 'ModuleActivation.RosAction' does not contain a definition for 'ActionName', which is a mandatory field!");
+                }
+
+                rosGlue.RosActionActivation.ActionPath = GetBsonStringField(docAct, "ActionPath");
+
+                if (rosGlue.RosActionActivation.ActionPath == null)
+                {
+                    errors.Add(plpDescription + ", 'ModuleActivation.RosAction' does not contain a definition for 'ActionPath', which is a mandatory field!");
+                }
+
+                if (docAct.Contains("ActionParameters"))
+                {
+                    foreach (BsonValue bVal in docAct["ActionParameters"].AsBsonArray)
+                    {
+                        BsonDocument docPar = bVal.AsBsonDocument;
+                        GlueParameterAssignment oPar = new GlueParameterAssignment();
+                        oPar.MsgFieldName = GetBsonStringField(docPar, "ActionFieldName");
+                        oPar.AssignActionFieldCode = GetBsonStringField(docPar, "AssignActionFieldCode");
+
+
+                        rosGlue.RosActionActivation.ParametersAssignments.Add(oPar);
+                        if (oPar.MsgFieldName == null)
+                        {
+                            errors.Add(plpDescription + ", 'ModuleActivation.RosAction.ActionParameters', contains an element without a definition for 'ActionFieldName', which is a mandatory field!");
+                        }
+
+                        if (oPar.MsgFieldName == null)
+                        {
+                            errors.Add(plpDescription + ", 'ModuleActivation.RosAction.ActionParameters', contains an element without a definition for 'AssignActionFieldCode', which is a mandatory field!");
+                        }
+                    }
+                }
+
+                tempErrors.Clear();
+                rosGlue.RosActionActivation.Imports.AddRange(LoadImports(docAct, out tempErrors, plpDescription, "ModuleActivation.RosAction"));
+                errors.AddRange(tempErrors);
+            }
+            
             return rosGlue;
         }
 
