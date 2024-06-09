@@ -241,25 +241,25 @@ setup(
         {
             string result = "";
 
-           result += GenerateFilesUtils.GetIndentationStr(1, 4, "def __init__(self, _topic_listener):");
-           result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.current_action_sequence_id = 1");
-           result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.current_action_for_execution_id = None");
-           result += GenerateFilesUtils.GetIndentationStr(2, 4, "self._topic_listener = _topic_listener");
-           result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.ready_to_activate = \"\" ");
+            result += GenerateFilesUtils.GetIndentationStr(1, 4, "def _init_(self, _topic_listener):");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.current_action_sequence_id = 1");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.current_action_for_execution_id = None");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self._topic_listener = _topic_listener");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.ready_to_activate = \"\" ");
 
-    foreach (RosGlue glue in data.RosGlues.Values)
-    {
-        if (glue.RosServiceActivation != null && !string.IsNullOrEmpty(glue.RosServiceActivation.ServiceName))
-        {
-            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self." + glue.Name + "_service_name = \"" + glue.RosServiceActivation.ServicePath + "\"");
+            foreach (RosGlue glue in data.RosGlues.Values)
+            {
+                if (glue.RosActionActivation != null && !string.IsNullOrEmpty(glue.RosActionActivation.ActionName))
+                {
+                    result += GenerateFilesUtils.GetIndentationStr(2, 4, "self." + glue.Name + "_service_name = \"" + glue.RosActionActivation.ActionPath + "\"");
+                }
+            }
+            
+            result += Environment.NewLine;
+
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.listen_to_mongodb_commands()");
+            return result;
         }
-    }
-
-    result += Environment.NewLine;
-
-    result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.listen_to_mongodb_commands()");
-    return result;
-}
 
 
         private static CompoundVarTypePLP GetCompundTypeByName(string compTypeName, PLPsData data)// NO CHANGES NEED
@@ -904,20 +904,24 @@ def updateLocalVariableValue(self, varName, value):
         } 
         return "HEAVY_LOCAL_VARS={" + result + "}";
     }
-        public static string GetAosRos2MiddlewareNodeFile(PLPsData data, InitializeProject initProj)// changed to ros2
+     public static string GetAosRos2MiddlewareNodeFile(PLPsData data, InitializeProject initProj)
 {
-    string pythonVersion = initProj.RosTarget.RosDistribution == "foxy" ? "python3" : "python";
+    string pythonVersion = "python3"; // ROS2 supports only Python 3
     string file = @"#!/usr/bin/" + pythonVersion + @"
 import datetime
 import rclpy
-#from geometry_msgs.msg import Point
-#from nav2_msgs.action import NavigateToPose
-import traceback
+from rclpy.node import Node
+from rclpy.action import ActionClient
 import pymongo
-" + GetImportsForMiddlewareNode(data, initProj) + @"
+import traceback
+from geometry_msgs.msg import Point
+from nav2_msgs.action import NavigateToPose
+from rcl_interfaces.msg import Log
+from interfaces_robot.srv import NavigateToCoordinates
 
-DEBUG = " + (initProj.MiddlewareConfiguration.DebugOn ? "True" : "False") + Environment.NewLine +
-GetHeavyLocalVariablesList(data) + @"
+
+DEBUG = True
+HEAVY_LOCAL_VARS = {}
 aosDbConnection = pymongo.MongoClient(""mongodb://localhost:27017/"")
 aosDB = aosDbConnection[""AOS""]
 aos_statisticsDB = aosDbConnection[""AOS_Statistics""]
@@ -928,257 +932,285 @@ aos_ModuleResponses_collection = aosDB[""ModuleResponses""]
 collActionForExecution = aosDB[""ActionsForExecution""]
 collLogs = aosDB[""Logs""]
 collActions = aosDB[""Actions""]
+        # self.navigate_service_name = ""/navigate_to_pose""
 
 
-def register_error(error_str, trace, comments=None):
-    error = {""Component"": ""RosMiddleware"", ""Event"": error_str, ""Advanced"": trace, ""LogLevel"": 2, ""LogLevelDesc"": ""Error"",
-             ""Time"": datetime.datetime.utcnow()}
+def registerError(errorStr, trace, comments=None):
+    error = {
+        ""Component"": ""RosMiddleware"", ""Event"": errorStr, ""Advanced"": trace, ""LogLevel"": 2, ""LogLevelDesc"": ""Error"",
+        ""Time"": datetime.datetime.utcnow()
+    }
     if comments is not None:
-        error = {""Component"": ""RosMiddleware"", ""Error"": error_str, ""Advanced"": str(comments) + "". "" + str(trace),
-                 ""Time"": datetime.datetime.utcnow()}
+        error = {
+            ""Component"": ""RosMiddleware"", ""Error"": errorStr, ""Advanced"": str(comments) + "". "" + str(trace),
+            ""Time"": datetime.datetime.utcnow()
+        }
     collLogs.insert_one(error)
 
-
-def register_log(msg):
-    log = {""Component"": ""RosMiddleware"", ""Event"": msg, ""LogLevel"": 5, ""LogLevelDesc"": ""Debug"", ""Advanced"": """",
-           ""Time"": datetime.datetime.utcnow()}
+def registerLog(logStr):
+    log = {
+        ""Component"": ""RosMiddleware"", ""Event"": logStr, ""LogLevel"": 5, ""LogLevelDesc"": ""Debug"", ""Advanced"": """",
+        ""Time"": datetime.datetime.utcnow()
+    }
     collLogs.insert_one(log)
 
+def getHeavyLocalVarList(moduleName):
+    return HEAVY_LOCAL_VARS.get(moduleName, [])
 
-def get_heavy_local_var_list(module_name):
-    if module_name in HEAVY_LOCAL_VARS:
-        return HEAVY_LOCAL_VARS[module_name]
-    else:
-        return []
-" + GetLocalVariableTypeClasses(data) + @"
 
-    
-class ListenToMongoDbCommands:
-    def _init_(self, topic_listener):
+
+class ListenToMongoDbCommands(Node):
+    def __init__(self, topic_listener):
+        super().__init__('listen_to_mongodb_commands')  # Set the node name
         self.current_action_sequence_id = 1
         self.current_action_for_execution_id = None
-        self.topic_listener = topic_listener
-        self.ready_to_activate = """"
-        self.navigate_service_name = ""/navigate_to_pose""
-        self.nav_to_pose_client = None
+        self.navigate_service_name = ""/navigate_to_coordinates""
+        self._topicListener = topic_listener  # Store the instance of AOS_TopicListenerServer
+        self.cli = self.create_client(NavigateToCoordinates, self.navigate_service_name)
+        
+        while not self.cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('Service not available, waiting again...')
+
         self.listen_to_mongodb_commands()
 
     def handle_navigate(self, params):
-        response_not_by_local_variables = None
-        nav_to_x = params[""ParameterValues""][""x""]
-        nav_to_y = params[""ParameterValues""][""y""]
-        nav_to_z = params[""ParameterValues""][""z""]
+        responseNotByLocalVariables = None
+        nav_to_x, nav_to_y, nav_to_z = """", """", """"
         try:
-            self.topic_listener.update_local_variable_value(""nav_to_x"", nav_to_x)
-            self.topic_listener.update_local_variable_value(""nav_to_y"", nav_to_y)
-            self.topic_listener.update_local_variable_value(""nav_to_z"", nav_to_z)
+            nav_to_x = params[""ParameterValues""][""x""]
+            self._topicListener.updateLocalVariableValue(""nav_to_x"", nav_to_x)
+            nav_to_y = params[""ParameterValues""][""y""]
+            self._topicListener.updateLocalVariableValue(""nav_to_y"", nav_to_y)
+            nav_to_z = params[""ParameterValues""][""z""]
+            self._topicListener.updateLocalVariableValue(""nav_to_z"", nav_to_z)
         except Exception as e:
-            register_error(str(e), traceback.format_exc(e), 'Action: navigate, illegalActionObs')
-            response_not_by_local_variables = ""illegalActionObs""
+            registerError(str(e), traceback.format_exc(), 'Action: navigate, illegalActionObs')
+            responseNotByLocalVariables = ""illegalActionObs""
+    
+        try:
+            registerLog(""wait for service: moduleName:navigate, serviceName:navigate"")
+            req = NavigateToCoordinates.Request()
+            req.x = float(nav_to_x)
+            req.y = float(nav_to_y)
+            req.z = float(nav_to_z)
+            self.get_logger().info(""Sending request to service, moduleName:navigate"")
+            future = self.cli.call_async(req)
+            rclpy.spin_until_future_complete(self, future)
+            if future.result() is not None:
+                self.get_logger().info(""Service response received, moduleName:navigate"")
+                skillSuccess = future.result().success
+                self._topicListener.updateLocalVariableValue(""skillSuccess"", skillSuccess)
+                if DEBUG:
+                    print(""navigate service terminated"")
+            else:
+                self.get_logger().error(""Service call failed"")
+        except Exception as e:
+            registerError(str(e), traceback.format_exc(), 'Action: navigate')
+            print(""Service call failed"")
+    
+        return responseNotByLocalVariables
+    
+    
 
-        goal_msg = NavigateToPose.Goal()
-        goal_msg.pose.position.x = nav_to_x
-        goal_msg.pose.position.y = nav_to_y
-        goal_msg.pose.position.z = nav_to_z
 
-        send_goal_future = self.nav_to_pose_client.send_goal_async(goal_msg)
-        rclpy.spin_until_future_complete(self, send_goal_future)
-        if send_goal_future.result() is None:
-            register_error(""Failed to send navigation goal"", ""send_goal_async failed"")
-            return response_not_by_local_variables
 
-        goal_handle = send_goal_future.result()
-        if not goal_handle.accepted:
-            register_error(""Navigation goal rejected"", ""Goal was not accepted by the action server"")
-            return response_not_by_local_variables
-
-        result_future = goal_handle.get_result_async()
-        rclpy.spin_until_future_complete(self, result_future)
-
-        if result_future.result():
-            self.topic_listener.update_local_variable_value(""skillSuccess"", True)
-        else:
-            self.topic_listener.update_local_variable_value(""skillSuccess"", False)
-
-        return response_not_by_local_variables
-
-    def save_heavy_local_variable_to_db(self, module_name):
-        for var_name in get_heavy_local_var_list(module_name):
-            value = self.topic_listener.local_var_names_and_values[module_name][var_name]
-            aos_local_var_collection.replace_one({""Module"": module_name, ""VarName"": var_name},
-                                                  {""Module"": module_name, ""VarName"": var_name,
-                                                   ""Value"": value}, upsert=True)
+    def saveHeavyLocalVariableToDB(self, moduleName):
+        for varName in getHeavyLocalVarList(moduleName):
+            value = self._topicListener.localVarNamesAndValues[moduleName][varName]
+            aos_local_var_collection.replace_one({""Module"": moduleName, ""VarName"": varName},
+                                                 {""Module"": moduleName, ""VarName"": varName,
+                                                  ""Value"": value}, upsert=True)
             aosStats_local_var_collection.insert_one(
-                {""Module"": module_name, ""VarName"": var_name, ""value"": value,
+                {""Module"": moduleName, ""VarName"": varName, ""value"": value,
                  ""Time"": datetime.datetime.utcnow()})
 
-    def register_module_response(self, module_name, start_time, action_sequence_id, response_not_by_local_variables):
-        self.save_heavy_local_variable_to_db(module_name)
-        filter1 = {""ActionSequenceId"": action_sequence_id}
+    def registerModuleResponse(self, moduleName, startTime, actionSequenceID, responseNotByLocalVariables):
+        self._topicListener.initLocalVars(moduleName)  # Ensure initialization
+        self.saveHeavyLocalVariableToDB(moduleName)
+        filter1 = {""ActionSequenceId"": actionSequenceID}
+        if DEBUG:
+            print(""registerModuleResponse()"")
 
-        if response_not_by_local_variables is not None:
-            module_response_item = {""Module"": module_name, ""ActionSequenceId"": action_sequence_id,
-                                    ""ModuleResponseText"": response_not_by_local_variables, ""StartTime"": start_time,
-                                    ""EndTime"": datetime.datetime.utcnow(),
-                                    ""ActionForExecutionId"": self.current_action_for_execution_id}
-            aos_ModuleResponses_collection.replace_one(filter1, module_response_item, upsert=True)
+        if responseNotByLocalVariables is not None:
+            moduleResponseItem = {""Module"": moduleName, ""ActionSequenceId"": actionSequenceID,
+                                  ""ModuleResponseText"": responseNotByLocalVariables, ""StartTime"": startTime,
+                                  ""EndTime"": datetime.datetime.utcnow(),
+                                  ""ActionForExecutionId"": self.current_action_for_execution_id}
+            aos_ModuleResponses_collection.replace_one(filter1, moduleResponseItem, upsert=True)
             return
 
-        module_response = """"
-        assign_global_var = {}
-        if module_name == ""navigate"":
-            skill_success = self.topic_listener.local_var_names_and_values[""navigate""][""skillSuccess""]
-            goal_reached = self.topic_listener.local_var_names_and_values[""navigate""][""goal_reached""]
-            if module_response == """" and skill_success and goal_reached:
-                module_response = ""navigate_eSuccess""
-            if module_response == """":
-                module_response = ""navigate_eFailed""
-
-        module_local_vars = {}
-        if module_name in self.topic_listener.local_var_names_and_values.keys():
-            module_local_vars = self.topic_listener.local_var_names_and_values[module_name]
-        module_response_item = {""Module"": module_name, ""ActionSequenceId"": action_sequence_id,
-                                ""ModuleResponseText"": module_response, ""StartTime"": start_time,
-                                ""EndTime"": datetime.datetime.utcnow(), ""ActionForExecutionId"": self.current_action_for_execution_id,
-                                ""LocalVariables"": module_local_vars}
-
-        aos_ModuleResponses_collection.replace_one(filter1, module_response_item, upsert=True)
-
-    def listen_to_mongodb_commands(self):
-        while True:
-            filter1 = {""ActionSequenceId"": self.current_action_sequence_id}
-            action_for_execution = collActionForExecution.find_one(filter1)
-            if action_for_execution is not None:
-                module_name = action_for_execution[""ActionName""]
-                action_parameters = action_for_execution[""Parameters""]
-                self.current_action_for_execution_id = action_for_execution[""_id""]
-                self.topic_listener.set_listen_target(module_name)
-                rclpy.sleep(0.3)  # Wait to avoid dropping updates
-                module_activation_start_time = datetime.datetime.utcnow()
-                response_not_by_local_variables = None
-                register_log(""Request to call module: "" + module_name)
-
-                if module_name == ""navigate"":
-                    response_not_by_local_variables = self.handle_navigate(action_parameters)
-
-                rclpy.sleep(0.3)  # Wait to avoid dropping updates
-                self.topic_listener.set_listen_target(""after action"")
-
-                self.register_module_response(module_name, module_activation_start_time, self.current_action_sequence_id,
-                                               response_not_by_local_variables)
-
-                self.current_action_sequence_id += 1
-
-            rclpy.sleep(0.1)
-
-
-class AOS_TopicListenerServer:
-    def _init_(self):
-        self.local_var_names_and_values = {""navigate"": {""skillSuccess"": None, ""goal_reached"": False,
-                                                         ""nav_to_x"": None, ""nav_to_y"": None, ""nav_to_z"": None}}
-        self.set_listen_target(""initTopicListener"")
-        self.subscriber = None
-        self.init_subscriber()
-
-    def init_subscriber(self):
-        self.subscriber = self.create_subscription(Log, ""/rosout"", self.cb_rosout, 1000)
-
-    def cb_rosout(self, msg):
-        try:
-            if self.listen_target_module == ""navigate"":
-                self.handle_navigate_topic(msg)
-        except Exception as e:
-            register_error(str(e), traceback.format_exc(e), 'topic /rosout')
-
-    def handle_navigate_topic(self, msg):
-        if self.listen_target_module == ""navigate"":
+        moduleResponse = """"
+        assignGlobalVar = {}
+        if moduleName == ""navigate"":
+            skillSuccess = self._topicListener.localVarNamesAndValues[""navigate""][""skillSuccess""]
+            goal_reached = self._topicListener.localVarNamesAndValues[""navigate""][""goal_reached""]
+            nav_to_x = self._topicListener.localVarNamesAndValues[""navigate""][""nav_to_x""]
+            nav_to_y = self._topicListener.localVarNamesAndValues[""navigate""][""nav_to_y""]
+            nav_to_z = self._topicListener.localVarNamesAndValues[""navigate""][""nav_to_z""]
             if DEBUG:
-                print(""handling topic call: navigate"")
-                print(msg)
-            value = self.navigate_get_value_goal_reached(msg)
-            self.update_local_variable_value(""goal_reached"", value)
+                print(""navigate action local variables:"")
+                print(""skillSuccess:"", skillSuccess)
+                print(""goal_reached:"", goal_reached)
+            if skillSuccess and goal_reached:
+                moduleResponse = ""navigate_eSuccess""
+            else:
+                moduleResponse = ""navigate_eFailed""
 
-    def navigate_get_value_goal_reached(self, msg):
-        if self.local_var_names_and_values[self.listen_target_module][""goal_reached""]:
+        if DEBUG and not getHeavyLocalVarList(moduleName):
+            print(""moduleResponse result:"", moduleResponse)
+        moduleLocalVars = self._topicListener.localVarNamesAndValues.get(moduleName, {})
+        moduleResponseItem = {""Module"": moduleName, ""ActionSequenceId"": actionSequenceID,
+                              ""ModuleResponseText"": moduleResponse, ""StartTime"": startTime, ""EndTime"": datetime.datetime.utcnow(),
+                              ""ActionForExecutionId"": self.current_action_for_execution_id,
+                              ""LocalVariables"": moduleLocalVars}
+
+        aos_ModuleResponses_collection.replace_one(filter1, moduleResponseItem, upsert=True)
+        for varName, value in assignGlobalVar.items():
+            isInit = value is not None
+            aos_GlobalVariablesAssignments_collection.replace_one({""GlobalVariableName"": varName},
+                                                                  {""GlobalVariableName"": varName, ""LowLevelValue"": value,
+                                                                   ""IsInitialized"": isInit, ""UpdatingActionSequenceId"": actionSequenceID,
+                                                                   ""ModuleResponseId"": moduleResponseItem[""_id""]}, upsert=True)
+    def listen_to_mongodb_commands(self):
+        while rclpy.ok():
+            filter1 = {""ActionSequenceId"": self.current_action_sequence_id}
+            actionForExecution = collActionForExecution.find_one(filter1)
+            if actionForExecution:
+                if DEBUG:
+                    print(""~~~~~~~~"")
+                    print(""actionID:"", actionForExecution[""ActionID""])
+                moduleName = actionForExecution[""ActionName""]
+                actionParameters = actionForExecution[""Parameters""]
+                self.current_action_for_execution_id = actionForExecution[""_id""]
+                self._topicListener.setListenTarget(moduleName)
+                rclpy.spin_once(self, timeout_sec=0.3)  # Spin with timeout to simulate rospy.sleep
+                moduleActivationStart = datetime.datetime.utcnow()
+                responseNotByLocalVariables = None
+                print(""module name:"", moduleName)
+                registerLog(""Request to call to module: "" + moduleName)
+    
+                if moduleName == ""navigate"":
+                    print(""handle navigate"")
+                    responseNotByLocalVariables = self.handle_navigate(actionParameters)
+    
+                # Here we wait for the goal reached message
+                while not self._topicListener.localVarNamesAndValues[""navigate""][""goal_reached""]:
+                    rclpy.spin_once(self, timeout_sec=0.1)
+                    print(""Waiting for goal to be reached..."")
+    
+                print(""Goal reached, proceeding to next action."")
+                rclpy.spin_once(self, timeout_sec=0.3)
+                self._topicListener.setListenTarget(""after action"")
+                registerLog(""1111111111111111111111111111111111: "" + moduleName)
+    
+                self.registerModuleResponse(moduleName, moduleActivationStart, self.current_action_sequence_id, responseNotByLocalVariables)
+                if DEBUG:
+                    print(""self.current_action_sequence_id:"", self.current_action_sequence_id)
+                self.current_action_sequence_id += 1
+                self.current_action_for_execution_id = None
+            rclpy.spin_once(self, timeout_sec=0.1)
+    
+    
+
+class AOS_TopicListenerServer(Node):
+    def __init__(self):
+        super().__init__('aos_topic_listener_server')
+        self.localVarNamesAndValues = {""navigate"": {""skillSuccess"": None, ""goal_reached"": False, ""nav_to_x"": None, ""nav_to_y"": None, ""nav_to_z"": None}}
+        self.setListenTarget(""initTopicListener"")
+        self.subscription = self.create_subscription(Log, '/rosout', self.cb__rosout, 1000)
+
+    def cb__rosout(self, data):
+        try:
+            if self.listenTargetModule == ""navigate"":
+                if DEBUG:
+                    print(""handling topic call:navigate"")
+                    print(data)
+                value = self.navigate_get_value_goal_succeeded(data)
+                self.updateLocalVariableValue(""goal_reached"", value)
+        except Exception as e:
+            registerError(str(e), traceback.format_exc(), 'topic /rosout')
+    
+    def navigate_get_value_goal_succeeded(self, __input):
+        if 'Goal succeeded!' in __input.msg:
+            print(""Goal succeeded detected in message"")
             return True
-        else:
-            return ""Goal reached"" in msg.msg
+        return False
+    
+    
+    
+    
 
-    def init_local_vars(self, module_name_to_init):
+    def initLocalVars(self, moduleNameToInit):
         if DEBUG:
             print(""initLocalVars:"")
-            print(module_name_to_init)
-        for module_name, local_var_names_and_values_per_module in self.local_var_names_and_values.items():
-            for local_var_name, value in local_var_names_and_values_per_module.items():
-                if module_name == module_name_to_init:
+            print(moduleNameToInit)
+        for moduleName, localVarNamesAndValuesPerModule in self.localVarNamesAndValues.items():
+            for localVarName, value in localVarNamesAndValuesPerModule.items():
+                if moduleName == moduleNameToInit:
                     if DEBUG:
                         print(""init var:"")
-                        print(local_var_name)
-                    aos_local_var_collection.replace_one({""Module"": module_name, ""VarName"": local_var_name},
-                                                           {""Module"": module_name, ""VarName"": local_var_name,
-                                                            ""Value"": value}, upsert=True)
+                        print(localVarName)
+                    aos_local_var_collection.replace_one({""Module"": moduleName, ""VarName"": localVarName},
+                                                         {""Module"": moduleName, ""VarName"": localVarName, ""Value"": value},
+                                                         upsert=True)
                     aosStats_local_var_collection.insert_one(
-                        {""Module"": module_name, ""VarName"": local_var_name, ""value"": value,
-                         ""Time"": datetime.datetime.utcnow()})
+                        {""Module"": moduleName, ""VarName"": localVarName, ""value"": value, ""Time"": datetime.datetime.utcnow()})
 
-    def set_listen_target(self, listen_target_module):
-        self.init_local_vars(listen_target_module)
+    def setListenTarget(self, _listenTargetModule):
+        self.initLocalVars(_listenTargetModule)
         if DEBUG:
             print('setListenTopicTargetModule:')
-            print(listen_target_module)
-        self.listen_target_module = listen_target_module
+            print(_listenTargetModule)
+        self.listenTargetModule = _listenTargetModule
 
-    def update_local_variable_value(self, var_name, value):
-        if DEBUG and var_name not in get_heavy_local_var_list(self.listen_target_module):
+    def updateLocalVariableValue(self, varName, value):
+        if DEBUG and varName not in getHeavyLocalVarList(self.listenTargetModule):
             print(""update local var:"")
-            print(var_name)
+            print(varName)
             print(value)
-        if self.listen_target_module not in self.local_var_names_and_values:
+        if self.listenTargetModule not in self.localVarNamesAndValues:
             return
-        if self.local_var_names_and_values[self.listen_target_module][var_name] != value:
+        if self.localVarNamesAndValues[self.listenTargetModule][varName] != value:
             if DEBUG:
                 print(""ACTUAL UPDATE --------------------------------------------------------------------------"")
-            self.local_var_names_and_values[self.listen_target_module][var_name] = value
-            if var_name not in get_heavy_local_var_list(self.listen_target_module):
-                aos_local_var_collection.replace_one({""Module"": self.listen_target_module, ""VarName"": var_name},
-                                                       {""Module"": self.listen_target_module, ""VarName"": var_name,
-                                                        ""Value"": value}, upsert=True)
+            self.localVarNamesAndValues[self.listenTargetModule][varName] = value
+            if varName not in getHeavyLocalVarList(self.listenTargetModule):
+                aos_local_var_collection.replace_one({""Module"": self.listenTargetModule, ""VarName"": varName},
+                                                     {""Module"": self.listenTargetModule, ""VarName"": varName, ""Value"": value}, upsert=True)
                 aosStats_local_var_collection.insert_one(
-                    {""Module"": self.listen_target_module, ""VarName"": var_name, ""value"": value,
-                     ""Time"": datetime.datetime.utcnow()})
+                    {""Module"": self.listenTargetModule, ""VarName"": varName, ""value"": value, ""Time"": datetime.datetime.utcnow()})
                 if DEBUG:
                     print(""WAS UPDATED --------------------------------------------------------------------------"")
+    
 
 
-class AOS_InitEnvironmentFile:
-    def _init_(self):
-        pass
 
-    def update_global_var_low_level_value(self, var_name, value):
-        is_init = value is not None
-        aos_GlobalVariablesAssignments_collection.replace_one({""GlobalVariableName"": var_name},
-                                                              {""GlobalVariableName"": var_name, ""LowLevelValue"": value,
-                                                               ""IsInitialized"": is_init,
-                                                               ""UpdatingActionSequenceId"": ""initialization"",
-                                                               ""ModuleResponseId"": ""initialization""}, upsert=True)
-
-
+# //AOS_TopicListenerServer
 def main(args=None):
     rclpy.init(args=args)
     try:
-        topic_listener = AOS_TopicListenerServer()  
-        command_listener = ListenToMongoDbCommands()
+     aos_TopicListenerServer = AOS_TopicListenerServer()
+     node = ListenToMongoDbCommands(aos_TopicListenerServer)  # Pass the instance of AOS_TopicListenerServer
+     rclpy.spin(node)
     except Exception as e:
-       pass
-    finally:
-        rclpy.shutdown()
+     print(e)
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+
+
 ";
     return file;
 }
 
+        
 
         private static Dictionary<string, string> GetLocalConstantAssignments(PLPsData data, HashSet<string> constants)
         {
