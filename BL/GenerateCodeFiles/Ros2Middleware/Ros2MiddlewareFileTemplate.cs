@@ -130,29 +130,65 @@ setup(
         }
 
 
-        private static string GetImportsForMiddlewareNode(PLPsData data, InitializeProject initProj)// NO CHANGES NEED
+        // private static string GetImportsForMiddlewareNode(PLPsData data, InitializeProject initProj)// NO CHANGES NEED
+        // {
+        //     string result = "";
+        //     Dictionary<string, HashSet<string>> unImports = new Dictionary<string, HashSet<string>>();
+        //     List<RosImport> imports = new List<RosImport>();
+        //     Console.WriteLine("22222222222222");     
+        //     foreach (RosGlue glue in data.RosGlues.Values)
+        //     {
+        //         Console.WriteLine("112111111111111");
+        //         Console.WriteLine(glue.RosActionActivation.Imports[0].From);
+        //
+        //         foreach (string item in glue.RosActionActivation.Imports[0].Imports)
+        //         {
+        //             Console.WriteLine(item);   
+        //         }
+        //         foreach (string item in glue.RosActionActivation.Imports[1].Imports)
+        //         {
+        //             Console.WriteLine(item);   
+        //         }
+        //         Console.WriteLine(glue.RosActionActivation.Imports[1].From);
+        //         imports.AddRange(glue.RosActionActivation.Imports);
+        //         Console.WriteLine("113");
+        //
+        //
+        //         foreach (var lVar in glue.GlueLocalVariablesInitializations)
+        //         {
+        //             imports.AddRange(lVar.Imports);
+        //         }
+        //     }
+        //
+        //     foreach (RosImport im in imports)
+        //     {
+        //         im.From = im.From == null ? "" : im.From;
+        //         if (!unImports.ContainsKey(im.From))
+        //         {
+        //             unImports.Add(im.From, new HashSet<string>());
+        //         }
+        //         foreach (string sIm in im.Imports)
+        //         {
+        //             unImports[im.From].Add(sIm);
+        //         }
+        //     }
+        //
+        //     foreach (KeyValuePair<string, HashSet<string>> keyVal in unImports)// NO CHANGES NEED
+        //     {
+        //         string baseS = keyVal.Key.Replace(" ", "").Length == 0 ? "" : "from " + keyVal.Key + " ";
+        //         result += GenerateFilesUtils.GetIndentationStr(0, 0, baseS + "import " + String.Join(",", keyVal.Value));
+        //     }
+        //     return result;
+        // }
+        private static string GetImportsForMiddlewareNode(PLPsData data, InitializeProject initProj)
         {
             string result = "";
             Dictionary<string, HashSet<string>> unImports = new Dictionary<string, HashSet<string>>();
             List<RosImport> imports = new List<RosImport>();
-
+            Console.WriteLine("1111111111111111111");
             foreach (RosGlue glue in data.RosGlues.Values)
             {
-                Console.WriteLine("112111111111111");
-                Console.WriteLine(glue.RosActionActivation.Imports[0].From);
-
-                foreach (string item in glue.RosActionActivation.Imports[0].Imports)
-                {
-                    Console.WriteLine(item);   
-                }
-                foreach (string item in glue.RosActionActivation.Imports[1].Imports)
-                {
-                    Console.WriteLine(item);   
-                }
-                Console.WriteLine(glue.RosActionActivation.Imports[1].From);
-                imports.AddRange(glue.RosActionActivation.Imports);
-                Console.WriteLine("113");
-
+                imports.AddRange(glue.RosServiceActivation.Imports);
 
                 foreach (var lVar in glue.GlueLocalVariablesInitializations)
                 {
@@ -173,7 +209,7 @@ setup(
                 }
             }
 
-            foreach (KeyValuePair<string, HashSet<string>> keyVal in unImports)// NO CHANGES NEED
+            foreach (KeyValuePair<string, HashSet<string>> keyVal in unImports)
             {
                 string baseS = keyVal.Key.Replace(" ", "").Length == 0 ? "" : "from " + keyVal.Key + " ";
                 result += GenerateFilesUtils.GetIndentationStr(0, 0, baseS + "import " + String.Join(",", keyVal.Value));
@@ -824,7 +860,7 @@ def updateLocalVariableValue(self, varName, value):
 //             print('setListenTopicTargetModule:')
 //             print(_listenTargetModule)
 //         self.listenTargetModule = _listenTargetModule
-// ";
+// ;
 //             Dictionary<string, List<GlueLocalVariablesInitialization>> rosParamVariables = new Dictionary<string, List<GlueLocalVariablesInitialization>>();
 //             foreach (RosGlue glue in data.RosGlues.Values)
 //             {
@@ -904,24 +940,169 @@ def updateLocalVariableValue(self, varName, value):
         } 
         return "HEAVY_LOCAL_VARS={" + result + "}";
     }
+    
+    // from rclpy.node import Node
+    // from geometry_msgs.msg import Point
+    // from nav2_msgs.action import NavigateToPose
+    // from rcl_interfaces.msg import Log
+    // from interfaces_robot.srv import NavigateToCoordinates
+        private static string GetHandleModuleFunctionV2(PLPsData data)
+{
+    string result = "";
+
+    foreach (RosGlue glue in data.RosGlues.Values)
+    {
+        PLP plp = data.PLPs[glue.Name];
+        result += GenerateFilesUtils.GetIndentationStr(1, 4, "def handle_" + glue.Name + "(self, params):");
+        result += GenerateFilesUtils.GetIndentationStr(2, 4, "responseNotByLocalVariables = None");
+
+        // Initialize local variables
+        foreach (LocalVariablesInitializationFromGlobalVariable oGlVar in glue.LocalVariablesInitializationFromGlobalVariables)
+        {
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, oGlVar.InputLocalVariable + " = \"\"");
+        }
+
+        // Try block for local variable assignment
+        if (glue.LocalVariablesInitializationFromGlobalVariables.Count > 0)
+        {
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "try:");
+
+            foreach (LocalVariablesInitializationFromGlobalVariable oGlVar in glue.LocalVariablesInitializationFromGlobalVariables)
+            {
+                LocalVariableTypePLP underlineType = GetUnderlineLocalVariableTypeByVarName(data, plp, oGlVar.FromGlobalVariable);
+
+                if (underlineType != null)
+                {
+                    if (oGlVar.FromGlobalVariable.StartsWith(PLPsData.GLOBAL_VARIABLE_STATE_REF))
+                    {
+                        result += GenerateFilesUtils.GetIndentationStr(3, 4, "globVarName = \"" + oGlVar.FromGlobalVariable + "\"");
+                    }
+                    else
+                    {
+                        string baseGlobalParameter = plp.GlobalVariableModuleParameters
+                            .Where(x => oGlVar.FromGlobalVariable.StartsWith(x.Name + ".") || oGlVar.FromGlobalVariable.Equals(x.Name))
+                            .Select(x => x.Name).FirstOrDefault();
+                        result += GenerateFilesUtils.GetIndentationStr(3, 4, "globVarName = \"" + oGlVar.FromGlobalVariable + "\".replace(\"" + baseGlobalParameter + "\", params[\"ParameterLinks\"][\"" + baseGlobalParameter + "\"], 1)");
+                    }
+
+                    result += GenerateFilesUtils.GetIndentationStr(3, 4, "dbVar = aos_GlobalVariablesAssignments_collection.find_one({\"GlobalVariableName\": globVarName})");
+                    result += GenerateFilesUtils.GetIndentationStr(3, 4, oGlVar.InputLocalVariable + " = " + underlineType.TypeName + "()");
+                    foreach (LocalVariableCompoundTypeField field in underlineType.SubFields)
+                    {
+                        result += GenerateFilesUtils.GetIndentationStr(3, 4, oGlVar.InputLocalVariable + "." + field.FieldName + " = dbVar[\"LowLevelValue\"][\"" + field.FieldName + "\"]");
+                    }
+                    result += GenerateFilesUtils.GetIndentationStr(3, 4, "self._topicListener.localVarNamesAndValues[\"" + glue.Name + "\"][\"" + oGlVar.InputLocalVariable + "\"] = " + underlineType.TypeName + "ToDict(" + oGlVar.InputLocalVariable + ")");
+                }
+                else
+                {
+                    string[] bits = oGlVar.FromGlobalVariable.Split(".");
+                    string varDesc = "[\"" + String.Join("\"][\"", bits) + "\"]";
+                    result += GenerateFilesUtils.GetIndentationStr(3, 4, oGlVar.InputLocalVariable + " = params[\"ParameterValues\"]" + varDesc);
+                    result += GenerateFilesUtils.GetIndentationStr(3, 4, "self._topicListener.updateLocalVariableValue(\"" + oGlVar.InputLocalVariable + "\", " + oGlVar.InputLocalVariable + ")");
+                }
+            }
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "except Exception as e:");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerError(str(e), traceback.format_exc(), 'Action: " + glue.Name + ", illegalActionObs')");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "responseNotByLocalVariables = \"illegalActionObs\"");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "return responseNotByLocalVariables");
+        }
+
+        // Try block for service activation
+        if (glue.RosServiceActivation != null && !string.IsNullOrEmpty(glue.RosServiceActivation.ServiceName))
+        {
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "try:");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerLog(\"wait for service: moduleName=" + glue.Name + ", serviceName=" + glue.RosServiceActivation.ServiceName + "\")");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "req = NavigateToCoordinates.Request()");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "req.x = float(nav_to_x)");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "req.y = float(nav_to_y)");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "req.z = float(nav_to_z)");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "self.get_logger().info(\"Sending request to service, moduleName=" + glue.Name + "\")");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "future = self.cli.call_async(req)");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerLog(\"Service call made, waiting for response\")");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "future.add_done_callback(self.navigate_callback)");
+
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "while not self._topicListener.localVarNamesAndValues[\"" + glue.Name + "\"][\"goal_reached\"]:");
+            result += GenerateFilesUtils.GetIndentationStr(4, 4, "rclpy.spin_once(self._topicListener, timeout_sec=0.1)");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "time.sleep(0.1)");
+
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "except Exception as e:");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerError(str(e), traceback.format_exc(), 'Action: " + glue.Name + "')");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "print(\"Service call failed\")");
+        }
+
+        result += GenerateFilesUtils.GetIndentationStr(2, 4, "return responseNotByLocalVariables");
+
+        // Adding the callback function
+        result += "\n";
+        result += GenerateFilesUtils.GetIndentationStr(1, 4, "def navigate_callback(self, future):");
+        result += GenerateFilesUtils.GetIndentationStr(2, 4, "try:");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerLog(\"navigate_callback invoked\")");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "result = future.result()");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerLog(\"Future result obtained\")");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "if result is not None:");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "self.get_logger().info(\"Service response received, moduleName=navigate\")");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "skillSuccess = result.success");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "registerLog(f\"Service response success: {skillSuccess}\")");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "self._topicListener.updateLocalVariableValue(\"skillSuccess\", skillSuccess)");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "if DEBUG:");
+        result += GenerateFilesUtils.GetIndentationStr(5, 4, "print(\"navigate service terminated\")");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "else:");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "self.get_logger().error(\"Service call failed, result is None\")");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "registerLog(\"Service call failed, result is None\")");
+        result += GenerateFilesUtils.GetIndentationStr(2, 4, "except Exception as e:");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerError(str(e), traceback.format_exc(), 'Action: navigate')");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "print(\"Service call failed\")");
+    }
+
+    return result;
+}
+        private static string GetListenToMongoDbCommandsInitFunctionV2(PLPsData data)
+        {
+            string result = "";
+
+            result += GenerateFilesUtils.GetIndentationStr(1, 0, "def __init__(self, topic_listener, shared_state):");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "super().__init__('listen_to_mongodb_commands')");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.current_action_sequence_id = 1");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.current_action_for_execution_id = None");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.shared_state = shared_state");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.navigate_service_name = \"/navigate_to_coordinates\"");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self._topicListener = topic_listener");
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.cli = self.create_client(NavigateToCoordinates, self.navigate_service_name)");
+
+            foreach (RosGlue glue in data.RosGlues.Values)
+            {
+                if (glue.RosServiceActivation != null && !string.IsNullOrEmpty(glue.RosServiceActivation.ServiceName))
+                {
+                    result += GenerateFilesUtils.GetIndentationStr(2, 4, "self." + glue.Name + "_service_name = \"" + glue.RosServiceActivation.ServicePath + "\"");
+                }
+            }
+
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "while not self.cli.wait_for_service(timeout_sec=1.0):");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "self.get_logger().info('Service not available, waiting again...')");
+
+            result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.timer = self.create_timer(1.0, self.listen_to_mongodb_commands)");
+
+            return result;
+        }
+
+
      public static string GetAosRos2MiddlewareNodeFile(PLPsData data, InitializeProject initProj)
 {
     string pythonVersion = "python3"; // ROS2 supports only Python 3
     string file = @"#!/usr/bin/" + pythonVersion + @"
 import datetime
 import rclpy
-from rclpy.node import Node
-from rclpy.action import ActionClient
 import pymongo
 import traceback
-from geometry_msgs.msg import Point
-from nav2_msgs.action import NavigateToPose
-from rcl_interfaces.msg import Log
-from interfaces_robot.srv import NavigateToCoordinates
+import operator
+import time
+
+" + GetImportsForMiddlewareNode(data, initProj) + @"
 
 
-DEBUG = True
-HEAVY_LOCAL_VARS = {}
+DEBUG = " + (initProj.MiddlewareConfiguration.DebugOn ? "True" : "False") + Environment.NewLine +
+GetHeavyLocalVariablesList(data) + @"
+
 aosDbConnection = pymongo.MongoClient(""mongodb://localhost:27017/"")
 aosDB = aosDbConnection[""AOS""]
 aos_statisticsDB = aosDbConnection[""AOS_Statistics""]
@@ -932,7 +1113,8 @@ aos_ModuleResponses_collection = aosDB[""ModuleResponses""]
 collActionForExecution = aosDB[""ActionsForExecution""]
 collLogs = aosDB[""Logs""]
 collActions = aosDB[""Actions""]
-        # self.navigate_service_name = ""/navigate_to_pose""
+
+
 
 
 def registerError(errorStr, trace, comments=None):
@@ -959,60 +1141,13 @@ def getHeavyLocalVarList(moduleName):
 
 
 
+" + GetLocalVariableTypeClasses(data) + @"
+
 class ListenToMongoDbCommands(Node):
-    def __init__(self, topic_listener):
-        super().__init__('listen_to_mongodb_commands')  # Set the node name
-        self.current_action_sequence_id = 1
-        self.current_action_for_execution_id = None
-        self.navigate_service_name = ""/navigate_to_coordinates""
-        self._topicListener = topic_listener  # Store the instance of AOS_TopicListenerServer
-        self.cli = self.create_client(NavigateToCoordinates, self.navigate_service_name)
-        
-        while not self.cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Service not available, waiting again...')
+    " + GetListenToMongoDbCommandsInitFunctionV2(data) + @"
 
-        self.listen_to_mongodb_commands()
-
-    def handle_navigate(self, params):
-        responseNotByLocalVariables = None
-        nav_to_x, nav_to_y, nav_to_z = """", """", """"
-        try:
-            nav_to_x = params[""ParameterValues""][""x""]
-            self._topicListener.updateLocalVariableValue(""nav_to_x"", nav_to_x)
-            nav_to_y = params[""ParameterValues""][""y""]
-            self._topicListener.updateLocalVariableValue(""nav_to_y"", nav_to_y)
-            nav_to_z = params[""ParameterValues""][""z""]
-            self._topicListener.updateLocalVariableValue(""nav_to_z"", nav_to_z)
-        except Exception as e:
-            registerError(str(e), traceback.format_exc(), 'Action: navigate, illegalActionObs')
-            responseNotByLocalVariables = ""illegalActionObs""
+" + GetHandleModuleFunctionV2(data) + @"
     
-        try:
-            registerLog(""wait for service: moduleName:navigate, serviceName:navigate"")
-            req = NavigateToCoordinates.Request()
-            req.x = float(nav_to_x)
-            req.y = float(nav_to_y)
-            req.z = float(nav_to_z)
-            self.get_logger().info(""Sending request to service, moduleName:navigate"")
-            future = self.cli.call_async(req)
-            rclpy.spin_until_future_complete(self, future)
-            if future.result() is not None:
-                self.get_logger().info(""Service response received, moduleName:navigate"")
-                skillSuccess = future.result().success
-                self._topicListener.updateLocalVariableValue(""skillSuccess"", skillSuccess)
-                if DEBUG:
-                    print(""navigate service terminated"")
-            else:
-                self.get_logger().error(""Service call failed"")
-        except Exception as e:
-            registerError(str(e), traceback.format_exc(), 'Action: navigate')
-            print(""Service call failed"")
-    
-        return responseNotByLocalVariables
-    
-    
-
-
 
     def saveHeavyLocalVariableToDB(self, moduleName):
         for varName in getHeavyLocalVarList(moduleName):
@@ -1024,12 +1159,20 @@ class ListenToMongoDbCommands(Node):
                 {""Module"": moduleName, ""VarName"": varName, ""value"": value,
                  ""Time"": datetime.datetime.utcnow()})
 
+
+
+
     def registerModuleResponse(self, moduleName, startTime, actionSequenceID, responseNotByLocalVariables):
+        registerLog(""in the function registerModuleResponse:::::::: "")
         self._topicListener.initLocalVars(moduleName)  # Ensure initialization
+        registerLog(""in the function registerModuleResponse222222222222:::::::: "")
+
         self.saveHeavyLocalVariableToDB(moduleName)
+        registerLog(""in the function registerModuleResponse333333333333333:::::::: "")
+
         filter1 = {""ActionSequenceId"": actionSequenceID}
-        if DEBUG:
-            print(""registerModuleResponse()"")
+        # if DEBUG:
+            # print(""registerModuleResponse()"")
 
         if responseNotByLocalVariables is not None:
             moduleResponseItem = {""Module"": moduleName, ""ActionSequenceId"": actionSequenceID,
@@ -1038,26 +1181,18 @@ class ListenToMongoDbCommands(Node):
                                   ""ActionForExecutionId"": self.current_action_for_execution_id}
             aos_ModuleResponses_collection.replace_one(filter1, moduleResponseItem, upsert=True)
             return
-
+        registerLog(""in the function registerModuleResponse444444444:::::::: "")
+        # time.sleep(2)
         moduleResponse = """"
         assignGlobalVar = {}
-        if moduleName == ""navigate"":
-            skillSuccess = self._topicListener.localVarNamesAndValues[""navigate""][""skillSuccess""]
-            goal_reached = self._topicListener.localVarNamesAndValues[""navigate""][""goal_reached""]
-            nav_to_x = self._topicListener.localVarNamesAndValues[""navigate""][""nav_to_x""]
-            nav_to_y = self._topicListener.localVarNamesAndValues[""navigate""][""nav_to_y""]
-            nav_to_z = self._topicListener.localVarNamesAndValues[""navigate""][""nav_to_z""]
-            if DEBUG:
-                print(""navigate action local variables:"")
-                print(""skillSuccess:"", skillSuccess)
-                print(""goal_reached:"", goal_reached)
-            if skillSuccess and goal_reached:
-                moduleResponse = ""navigate_eSuccess""
-            else:
-                moduleResponse = ""navigate_eFailed""
 
-        if DEBUG and not getHeavyLocalVarList(moduleName):
-            print(""moduleResponse result:"", moduleResponse)
+
+" + GetModuleResponseFunctionPartV2(data) + @"
+
+
+
+
+        registerLog(""this is the response of the navigation : ""+moduleResponse)
         moduleLocalVars = self._topicListener.localVarNamesAndValues.get(moduleName, {})
         moduleResponseItem = {""Module"": moduleName, ""ActionSequenceId"": actionSequenceID,
                               ""ModuleResponseText"": moduleResponse, ""StartTime"": startTime, ""EndTime"": datetime.datetime.utcnow(),
@@ -1071,98 +1206,262 @@ class ListenToMongoDbCommands(Node):
                                                                   {""GlobalVariableName"": varName, ""LowLevelValue"": value,
                                                                    ""IsInitialized"": isInit, ""UpdatingActionSequenceId"": actionSequenceID,
                                                                    ""ModuleResponseId"": moduleResponseItem[""_id""]}, upsert=True)
+
     def listen_to_mongodb_commands(self):
-        while rclpy.ok():
-            filter1 = {""ActionSequenceId"": self.current_action_sequence_id}
-            actionForExecution = collActionForExecution.find_one(filter1)
-            if actionForExecution:
-                if DEBUG:
-                    print(""~~~~~~~~"")
-                    print(""actionID:"", actionForExecution[""ActionID""])
-                moduleName = actionForExecution[""ActionName""]
-                actionParameters = actionForExecution[""Parameters""]
-                self.current_action_for_execution_id = actionForExecution[""_id""]
-                self._topicListener.setListenTarget(moduleName)
-                rclpy.spin_once(self, timeout_sec=0.3)  # Spin with timeout to simulate rospy.sleep
-                moduleActivationStart = datetime.datetime.utcnow()
-                responseNotByLocalVariables = None
-                print(""module name:"", moduleName)
-                registerLog(""Request to call to module: "" + moduleName)
-    
-                if moduleName == ""navigate"":
-                    print(""handle navigate"")
-                    responseNotByLocalVariables = self.handle_navigate(actionParameters)
-    
-                # Here we wait for the goal reached message
-                while not self._topicListener.localVarNamesAndValues[""navigate""][""goal_reached""]:
-                    rclpy.spin_once(self, timeout_sec=0.1)
-                    print(""Waiting for goal to be reached..."")
-    
-                print(""Goal reached, proceeding to next action."")
-                rclpy.spin_once(self, timeout_sec=0.3)
-                self._topicListener.setListenTarget(""after action"")
-                registerLog(""1111111111111111111111111111111111: "" + moduleName)
-    
-                self.registerModuleResponse(moduleName, moduleActivationStart, self.current_action_sequence_id, responseNotByLocalVariables)
-                if DEBUG:
-                    print(""self.current_action_sequence_id:"", self.current_action_sequence_id)
-                self.current_action_sequence_id += 1
-                self.current_action_for_execution_id = None
-            rclpy.spin_once(self, timeout_sec=0.1)
-    
-    
+        filter1 = {""ActionSequenceId"": self.current_action_sequence_id}
+        actionForExecution = collActionForExecution.find_one(filter1)
+        if actionForExecution:
+            if DEBUG:
+                print(""~~"")
+                print(""actionID:"", actionForExecution[""ActionID""])
+            moduleName = actionForExecution[""ActionName""]
+            actionParameters = actionForExecution[""Parameters""]
+            self.current_action_for_execution_id = actionForExecution[""_id""]
+            registerLog(""navigate start with id :::"" + str(self.current_action_sequence_id))
+            self._topicListener.setListenTarget(moduleName)
+            time.sleep(0.3)
+            moduleActivationStart = datetime.datetime.utcnow()
+            responseNotByLocalVariables = None
+            print(""module name:"", moduleName)
+            registerLog(""Request to call to module: "" + moduleName)
+            registerLog(""navigate start:"")
 
-class AOS_TopicListenerServer(Node):
-    def __init__(self):
-        super().__init__('aos_topic_listener_server')
-        self.localVarNamesAndValues = {""navigate"": {""skillSuccess"": None, ""goal_reached"": False, ""nav_to_x"": None, ""nav_to_y"": None, ""nav_to_z"": None}}
-        self.setListenTarget(""initTopicListener"")
-        self.subscription = self.create_subscription(Log, '/rosout', self.cb__rosout, 1000)
 
-    def cb__rosout(self, data):
-        try:
-            if self.listenTargetModule == ""navigate"":
-                if DEBUG:
-                    print(""handling topic call:navigate"")
-                    print(data)
-                value = self.navigate_get_value_goal_succeeded(data)
-                self.updateLocalVariableValue(""goal_reached"", value)
-        except Exception as e:
-            registerError(str(e), traceback.format_exc(), 'topic /rosout')
-    
-    def navigate_get_value_goal_succeeded(self, __input):
-        if 'Goal succeeded!' in __input.msg:
-            print(""Goal succeeded detected in message"")
-            return True
-        return False
-    
-    
-    
-    
+" + GetListenToMongoCommandsFunctionPartV2(data) + @"
+            time.sleep(0.3)
+            self._topicListener.setListenTarget(""after action"")
+            # while not self._topicListener.localVarNamesAndValues[""navigate""][""goal_reached""]:
+            #               rclpy.spin_once(self._topicListener, timeout_sec=0.1)
+ 
+            registerLog(""after while loop of goal reached""+ str(self._topicListener.localVarNamesAndValues[""navigate""][""goal_reached""]))    
+            self.registerModuleResponse(moduleName, moduleActivationStart, self.current_action_sequence_id,
+                                        responseNotByLocalVariables)
+            if DEBUG:
+                print(""navigate finished"")
+            self.current_action_sequence_id += 1
+            self.currentActionFotExecutionId = None
+    time.sleep(0.1)
 
+        
+" + GetAOS_TopicListenerServerClassV2(data) + @"
+
+" + shareClassMashehoKazy(data) + @"
+
+
+
+
+
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    shared_state = SharedState1()
+    topic_listener = AOS_TopicListenerServer(shared_state)
+    command_listener = ListenToMongoDbCommands(topic_listener,shared_state)
+
+    topic_listener.get_logger().info(""Nodes initialized and command_listener is about to spin"")
+    executor = MultiThreadedExecutor()
+    executor.add_node(topic_listener)
+    executor.add_node(command_listener)
+    try:
+        rclpy.spin(command_listener)  # Only spin the command_listener node
+    except KeyboardInterrupt:
+        pass
+    finally:
+        executor.shutdown()
+        command_listener.destroy_node()
+        topic_listener.destroy_node()
+        rclpy.shutdown()
+
+
+
+
+";
+    return file;
+}
+     private static string GetModuleResponseFunctionPartV2(PLPsData data)
+{
+    string result = "";
+
+    foreach (RosGlue glue in data.RosGlues.Values)
+    {
+        PLP plp = data.PLPs[glue.Name];
+        result += GenerateFilesUtils.GetIndentationStr(2, 4, "if moduleName == \"" + glue.Name + "\":");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerLog(\"in the function registerModuleResponse for " + glue.Name + ":::::::: \")");
+
+        HashSet<string> localVarNames = new HashSet<string>();
+        foreach (var oVar in glue.GlueLocalVariablesInitializations)
+        {
+            localVarNames.Add(oVar.LocalVarName);
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, oVar.LocalVarName + " = self._topicListener.localVarNamesAndValues[\"" + glue.Name + "\"][\"" + oVar.LocalVarName + "\"]");
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerLog(\"" + oVar.LocalVarName + ":  \"  +  str(" + oVar.LocalVarName + "))");
+        }
+        foreach (var oVar in glue.LocalVariablesInitializationFromGlobalVariables)
+        {
+            localVarNames.Add(oVar.InputLocalVariable);
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, oVar.InputLocalVariable + " = self._topicListener.localVarNamesAndValues[\"" + glue.Name + "\"][\"" + oVar.InputLocalVariable + "\"]");
+        }
+
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "nav_to_x = self._topicListener.localVarNamesAndValues[\"" + glue.Name + "\"][\"nav_to_x\"]");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "nav_to_y = self._topicListener.localVarNamesAndValues[\"" + glue.Name + "\"][\"nav_to_y\"]");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "nav_to_z = self._topicListener.localVarNamesAndValues[\"" + glue.Name + "\"][\"nav_to_z\"]");
+
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "if " + string.Join(" and ", localVarNames.Select(varName => varName)) + ":");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "moduleResponse = \"" + glue.Name + "_eSuccess\"");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "else:");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "moduleResponse = \"" + glue.Name + "_eFailed\"");
+        
+        result += Environment.NewLine;
+    }
+
+    return result;
+}
+private static string GetListenToMongoCommandsFunctionPartV2(PLPsData data)
+{
+    string result = "";
+    foreach (PLP plp in data.PLPs.Values)
+    {
+        result += GenerateFilesUtils.GetIndentationStr(4, 3, "if moduleName == \"" + plp.Name + "\":");
+        result += GenerateFilesUtils.GetIndentationStr(5, 4, "print(\"handle " + plp.Name + "\")");
+        result += GenerateFilesUtils.GetIndentationStr(5, 4, "responseNotByLocalVariables = self.handle_" + plp.Name + "(actionParameters)");
+        result += GenerateFilesUtils.GetIndentationStr(5, 4, "registerLog(\"" + plp.Name + " finished:\")");
+    }
+    return result;
+}
+
+     private static string GetAOS_TopicListenerServerClassV2(PLPsData data)
+{
+    string result = "";
+
+    // Class definition and constructor
+    result += GenerateFilesUtils.GetIndentationStr(0, 4, "class AOS_TopicListenerServer(Node):");
+    result += GenerateFilesUtils.GetIndentationStr(1, 4, "def __init__(self, shared_state):");
+    result += GenerateFilesUtils.GetIndentationStr(2, 4, "super().__init__('aos_topic_listener_server')");
+    result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.shared_state = shared_state");
+    result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.localVarNamesAndValues = {", false);
+
+    // Initialize local variables
+    List<RosGlue> gluesWithLocalVars = data.RosGlues.Values
+        .Where(x => x.LocalVariablesInitializationFromGlobalVariables.Count > 0 || x.GlueLocalVariablesInitializations.Count > 0)
+        .ToList();
+
+    for (int j = 0; j < gluesWithLocalVars.Count; j++)
+    {
+        RosGlue glue = gluesWithLocalVars[j];
+        result += GenerateFilesUtils.GetIndentationStr(0, 4, "\"" + glue.Name + "\":{", false);
+
+        for (int i = 0; i < glue.GlueLocalVariablesInitializations.Count; i++)
+        {
+            var localVar = glue.GlueLocalVariablesInitializations[i];
+            result += GenerateFilesUtils.GetIndentationStr(0, 4, "\"" + localVar.LocalVarName + "\": " +
+                    (string.IsNullOrEmpty(localVar.InitialValue) ? "None" : localVar.InitialValue) +
+                    (i == glue.GlueLocalVariablesInitializations.Count - 1 && glue.LocalVariablesInitializationFromGlobalVariables.Count == 0 ? "" : ", "), false);
+        }
+        for (int i = 0; i < glue.LocalVariablesInitializationFromGlobalVariables.Count; i++)
+        {
+            var localFromGlob = glue.LocalVariablesInitializationFromGlobalVariables[i];
+            result += GenerateFilesUtils.GetIndentationStr(0, 4, "\"" + localFromGlob.InputLocalVariable + "\": None" +
+                    (i == glue.LocalVariablesInitializationFromGlobalVariables.Count - 1 ? "" : ", "), false);
+        }
+        result += GenerateFilesUtils.GetIndentationStr(0, 4, "}" + (j < gluesWithLocalVars.Count - 1 ? ", " : ""), false);
+    }
+    result += GenerateFilesUtils.GetIndentationStr(0, 4, "}");
+    result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.setListenTarget(\"initTopicListener\")");
+    result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.subscription = self.create_subscription(Log, '/rosout', self.cb__rosout, 10)");
+    result += GenerateFilesUtils.GetIndentationStr(2, 4, "print(\"LOLO\")");
+    result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.get_logger().info(\"AOS_TopicListenerServer initialized and subscribed to /rosout\")");
+    result += Environment.NewLine;
+
+    // Topic callbacks
+    Dictionary<string, Dictionary<string, List<GlueLocalVariablesInitialization>>> topicsToListen = new Dictionary<string, Dictionary<string, List<GlueLocalVariablesInitialization>>>();
+    foreach (RosGlue glue in data.RosGlues.Values)
+    {
+        foreach (var oLVar in glue.GlueLocalVariablesInitializations)
+        {
+            if (!string.IsNullOrEmpty(oLVar.RosTopicPath))
+            {
+                if (!topicsToListen.ContainsKey(oLVar.RosTopicPath))
+                {
+                    topicsToListen[oLVar.RosTopicPath] = new Dictionary<string, List<GlueLocalVariablesInitialization>>();
+                }
+                if (!topicsToListen[oLVar.RosTopicPath].ContainsKey(glue.Name))
+                {
+                    topicsToListen[oLVar.RosTopicPath][glue.Name] = new List<GlueLocalVariablesInitialization>();
+                }
+                topicsToListen[oLVar.RosTopicPath][glue.Name].Add(oLVar);
+            }
+        }
+    }
+
+    foreach (var topic in topicsToListen)
+    {
+        result += GenerateFilesUtils.GetIndentationStr(1, 4, "def cb_" + topic.Key.Replace("/", "_") + "(self, msg):");
+        result += GenerateFilesUtils.GetIndentationStr(2, 4, "try:");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "print(self.listenTargetModule)");
+        foreach (var glueTopic in topic.Value)
+        {
+            result += GenerateFilesUtils.GetIndentationStr(3, 4, "if self.listenTargetModule == \"" + glueTopic.Key + "\":");
+            result += GenerateFilesUtils.GetIndentationStr(4, 4, "if DEBUG:");
+            result += GenerateFilesUtils.GetIndentationStr(5, 4, "print(\"handling topic call:" + glueTopic.Key + "\")");
+            result += GenerateFilesUtils.GetIndentationStr(5, 4, "print(msg)");
+            foreach (var localVar in glueTopic.Value)
+            {
+                result += GenerateFilesUtils.GetIndentationStr(4, 4, "#-----------------------------------------------------------------------");
+                result += GenerateFilesUtils.GetIndentationStr(4, 4, "value = self." + glueTopic.Key + "_get_value_" + localVar.LocalVarName + "(msg)");
+                result += GenerateFilesUtils.GetIndentationStr(4, 4, "self.updateLocalVariableValue(\"" + localVar.LocalVarName + "\", value)");
+                result += GenerateFilesUtils.GetIndentationStr(4, 4, "self.updateLocalVariableValue(\"skillSuccess\", value)"); // Should be changed if needed
+            }
+        }
+        result += GenerateFilesUtils.GetIndentationStr(2, 4, "except Exception as e:");
+        result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerError(str(e), traceback.format_exc(), 'topic " + topic.Key + "')");
+        result += Environment.NewLine;
+    }
+
+    // Helper methods for local variables
+    foreach (var topic in topicsToListen)
+    {
+        foreach (var glueTopic in topic.Value)
+        {
+            foreach (var localVar in glueTopic.Value)
+            {
+                result += GenerateFilesUtils.GetIndentationStr(1, 4, "def " + glueTopic.Key + "_get_value_" + localVar.LocalVarName + "(self, __input):");
+                result += GenerateFilesUtils.GetIndentationStr(2, 4, "if 'Goal has been reached.' in __input.msg:");
+                result += GenerateFilesUtils.GetIndentationStr(3, 4, "self.shared_state.goal_reached = True");
+                result += GenerateFilesUtils.GetIndentationStr(3, 4, "self.skill_success = True"); // Should be changed if needed
+                result += GenerateFilesUtils.GetIndentationStr(3, 4, "return True");
+                result += GenerateFilesUtils.GetIndentationStr(2, 4, "return False");
+                result += Environment.NewLine;
+            }
+        }
+    }
+
+    // initLocalVars method
+    result += @"
     def initLocalVars(self, moduleNameToInit):
-        if DEBUG:
-            print(""initLocalVars:"")
-            print(moduleNameToInit)
         for moduleName, localVarNamesAndValuesPerModule in self.localVarNamesAndValues.items():
             for localVarName, value in localVarNamesAndValuesPerModule.items():
                 if moduleName == moduleNameToInit:
-                    if DEBUG:
-                        print(""init var:"")
-                        print(localVarName)
                     aos_local_var_collection.replace_one({""Module"": moduleName, ""VarName"": localVarName},
                                                          {""Module"": moduleName, ""VarName"": localVarName, ""Value"": value},
                                                          upsert=True)
                     aosStats_local_var_collection.insert_one(
                         {""Module"": moduleName, ""VarName"": localVarName, ""value"": value, ""Time"": datetime.datetime.utcnow()})
+";
+    result += Environment.NewLine;
 
+    // setListenTarget method
+    result += @"
     def setListenTarget(self, _listenTargetModule):
         self.initLocalVars(_listenTargetModule)
         if DEBUG:
             print('setListenTopicTargetModule:')
             print(_listenTargetModule)
         self.listenTargetModule = _listenTargetModule
+";
+    result += Environment.NewLine;
 
+    // updateLocalVariableValue method
+    result += @"
     def updateLocalVariableValue(self, varName, value):
         if DEBUG and varName not in getHeavyLocalVarList(self.listenTargetModule):
             print(""update local var:"")
@@ -1181,36 +1480,21 @@ class AOS_TopicListenerServer(Node):
                     {""Module"": self.listenTargetModule, ""VarName"": varName, ""value"": value, ""Time"": datetime.datetime.utcnow()})
                 if DEBUG:
                     print(""WAS UPDATED --------------------------------------------------------------------------"")
-    
-
-
-
-# //AOS_TopicListenerServer
-def main(args=None):
-    rclpy.init(args=args)
-    try:
-     aos_TopicListenerServer = AOS_TopicListenerServer()
-     node = ListenToMongoDbCommands(aos_TopicListenerServer)  # Pass the instance of AOS_TopicListenerServer
-     rclpy.spin(node)
-    except Exception as e:
-     print(e)
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
-
-
-
-
-
-
-
-
 ";
-    return file;
+    return result;
+}
+   
+private static string shareClassMashehoKazy(PLPsData data)
+{
+    string result = "";
+
+    result += GenerateFilesUtils.GetIndentationStr(1, 0, "class SharedState1:");
+    result += GenerateFilesUtils.GetIndentationStr(2, 1, "def __init__(self):");
+    result += GenerateFilesUtils.GetIndentationStr(2, 2, "self.goal_reached = False");
+    result += GenerateFilesUtils.GetIndentationStr(2, 2, "self.skill_success=False");
+    return result;
 }
 
-        
 
         private static Dictionary<string, string> GetLocalConstantAssignments(PLPsData data, HashSet<string> constants)
         {
