@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup> 
+    <PackageReference Include="Microsoft.OpenApi" Version="1.6.3" />
+    <PackageReference Include="MongoDB.Bson" Version="2.12.2" />
+    <PackageReference Include="MongoDB.Driver" Version="2.12.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="Python.Runtime" Version="2.7.9" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="MyTests\obj\MyTests.csproj.nuget.dgspec.json" />
+    <_ContentIncludedByDefault Remove="MyTests\obj\project.assets.json" />
+    <_ContentIncludedByDefault Remove="MyTests\obj\project.packagespec.json" />
+  </ItemGroup>
+</Project>
