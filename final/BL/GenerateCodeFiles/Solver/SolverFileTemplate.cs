@@ -494,6 +494,8 @@ namespace despot {
   mongocxx::collection MongoDB_Bridge::actionToExecuteCollection;
   mongocxx::collection MongoDB_Bridge::moduleResponseColllection;
   mongocxx::collection MongoDB_Bridge::localVariableColllection;
+  mongocxx::collection MongoDB_Bridge::localVariableDBColllection;
+
   mongocxx::collection MongoDB_Bridge::actionsCollection;
   mongocxx::collection MongoDB_Bridge::globalVariablesAssignmentsColllection;
   mongocxx::collection MongoDB_Bridge::SolversCollection;
@@ -520,6 +522,8 @@ namespace despot {
       MongoDB_Bridge::moduleResponseColllection = MongoDB_Bridge::db[""ModuleResponses""];
       MongoDB_Bridge::globalVariablesAssignmentsColllection = MongoDB_Bridge::db[""GlobalVariablesAssignments""];
       MongoDB_Bridge::localVariableColllection = MongoDB_Bridge::db[""localVariables""];
+      MongoDB_Bridge::localVariableDBColllection = MongoDB_Bridge::db[""localVariablesDB""];
+
       MongoDB_Bridge::actionsCollection = MongoDB_Bridge::db[""Actions""];
       MongoDB_Bridge::SolversCollection = MongoDB_Bridge::db[""Solvers""];
       MongoDB_Bridge::beliefStatesColllection = MongoDB_Bridge::db[""BeliefStates""];

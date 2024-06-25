@@ -1140,14 +1140,21 @@ aosDbConnection = pymongo.MongoClient(""mongodb://localhost:27017/"")
 aosDB = aosDbConnection[""AOS""]
 aos_statisticsDB = aosDbConnection[""AOS_Statistics""]
 aos_local_var_collection = aosDB[""LocalVariables""]
+aos_local_var_collection1 = aosDB[""LocalVariablesDB""]
+aosStats_local_var_collection1 = aos_statisticsDB[""LocalVariablesDB""]
+
 aosStats_local_var_collection = aos_statisticsDB[""LocalVariables""]
 aos_GlobalVariablesAssignments_collection = aosDB[""GlobalVariablesAssignments""]
 aos_ModuleResponses_collection = aosDB[""ModuleResponses""]
 collActionForExecution = aosDB[""ActionsForExecution""]
 collLogs = aosDB[""Logs""]
 collActions = aosDB[""Actions""]
-
-
+print(""1111111111111111111111111111111"")
+aos_local_var_collection1.replace_one({""Module"": ""MIC"", ""VarName"": ""STAM""},
+                                                     {""Module"": ""MIC"", ""VarName"":  ""STAM"", ""Value"": ""2""}, upsert=True)
+aosStats_local_var_collection1.insert_one(
+                    {""Module"": ""MIC"", ""VarName"": ""STAM"", ""value"": ""2"", ""Time"": datetime.datetime.utcnow()})
+print(""22222222222222222222222222222"")
 
 
 def registerError(errorStr, trace, comments=None):
