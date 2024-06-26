@@ -174,6 +174,9 @@ namespace WebApiCSharp.Models
         public string VariableName;
         public string VariableType;
         public string SkillName;
+        public string Consistency;
+
+        
         public bool IsHeavyVariable;
     }
 
@@ -200,6 +203,16 @@ namespace WebApiCSharp.Models
                 VariableName = value;
             }
         }
+        // public string Consistency
+        // {
+        //     get => VariableName;
+        //     set
+        //     {
+        //         VariableName = value;
+        //     }
+        // }
+        public string Consistency { get; set; }
+
         public string RosTopicPath;
         public string AssignmentCode;
         public string TopicMessageType; 

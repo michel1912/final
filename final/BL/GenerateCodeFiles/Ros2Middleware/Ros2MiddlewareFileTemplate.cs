@@ -1,3 +1,8 @@
+
+
+
+
+
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Principal;
 using MongoDB.Bson;
@@ -443,7 +448,7 @@ def _init_(self, _topic_listener):
                             string varDesc = "[\"" + String.Join("\"][\"", bits) + "\"]";
                             result += GenerateFilesUtils.GetIndentationStr(3, 4, oGlVar.InputLocalVariable + " = params[\"ParameterValues\"]" + varDesc);
 
-                            result += GenerateFilesUtils.GetIndentationStr(3, 4, "self._topicListener.updateLocalVariableValue(\""+oGlVar.InputLocalVariable+"\", "+oGlVar.InputLocalVariable+")");
+                            result += GenerateFilesUtils.GetIndentationStr(3, 4, "self._topicListener.updateLocalVariableValue(\"" + oGlVar.InputLocalVariable + "\", \"" + oGlVar.Consistency + "\", " + oGlVar.InputLocalVariable + ")");
                  
                         }
                       
@@ -510,7 +515,7 @@ def _init_(self, _topic_listener):
                 foreach (var oVar in glue.GlueLocalVariablesInitializations)
                 {
                     localVarNames.Add(oVar.LocalVarName);
-                    result += GenerateFilesUtils.GetIndentationStr(3, 4, oVar.LocalVarName + " = self._topicListener.localVarNamesAndValues[\"" + glue.Name + "\"][\"" + oVar.LocalVarName + "\"]");
+                    result += GenerateFilesUtils.GetIndentationStr(3, 4, oVar.LocalVarName+ " = self._topicListener.localVarNamesAndValues[\"" + glue.Name + "\"][\"" + oVar.LocalVarName + "\"]");
                 }
                 foreach (var oVar in glue.LocalVariablesInitializationFromGlobalVariables)
                 {
@@ -742,27 +747,28 @@ def setListenTarget(self, _listenTargetModule):
 
     result += @"
 
-def updateLocalVariableValue(self, varName, value):
-    if DEBUG and varName not in getHeavyLocalVarList(self.listenTargetModule):
-        print(""update local var:"")
-        print(varName)
-        print(value)
-    if self.listenTargetModule not in self.localVarNamesAndValues:
-        return
-    if self.localVarNamesAndValues[self.listenTargetModule][varName] != value:
-        if DEBUG:
-            print(""ACTUAL UPDATE --------------------------------------------------------------------------"")
-        self.localVarNamesAndValues[self.listenTargetModule][varName]=value
-        if varName not in getHeavyLocalVarList(self.listenTargetModule):
-            aos_local_var_collection.replace_one({""Module"": self.listenTargetModule, ""VarName"":varName}, {""Module"": self.listenTargetModule, ""VarName"":varName, ""Value"":value}, upsert=True)
-            aosStats_local_var_collection.insert_one(
-                {""Module"": self.listenTargetModule, ""VarName"": varName, ""value"": value, ""Time"": datetime.datetime.utcnow()})
+    def updateLocalVariableValue(self, varName, value):
+        if DEBUG and varName not in getHeavyLocalVarList(self.listenTargetModule):
+            print(""update local var:"")
+            print(varName)
+            print(value)
+        if self.listenTargetModule not in self.localVarNamesAndValues:
+            return
+        if self.localVarNamesAndValues[self.listenTargetModule][varName] != value:
             if DEBUG:
-                print(""WAS UPDATED --------------------------------------------------------------------------"")
+                print(""ACTUAL UPDATE --------------------------------------------------------------------------"")
+            self.localVarNamesAndValues[self.listenTargetModule][varName]=value
+            if varName not in getHeavyLocalVarList(self.listenTargetModule):
+                aos_local_var_collection.replace_one({""Module"": self.listenTargetModule, ""VarName"":varName}, {""Module"": self.listenTargetModule, ""VarName"":varName, ""Value"":value}, upsert=True)
+                aosStats_local_var_collection.insert_one(
+                    {""Module"": self.listenTargetModule, ""VarName"": varName, ""value"": value, ""Time"": datetime.datetime.utcnow()})
+                if DEBUG:
+                    print(""WAS UPDATED --------------------------------------------------------------------------"")
 
 ";
     return result;
 }
+
 
 //         private static string GetAOS_TopicListenerServerClass(PLPsData data)// NEED TO CHANGE TO RCLPY AND CHECK IF WE NEED ANOTHER ROS2 CHANGES
 //         {
@@ -960,7 +966,7 @@ def updateLocalVariableValue(self, varName, value):
 //         }
 
 
-    private static string GetHeavyLocalVariablesList(PLPsData data)// NO NEED TO CHANGE
+    private static string GetHeavyLocalVariablesList(PLPsData data)
     {
         string result = "";;
         foreach(PLP plp in data.PLPs.Values)
@@ -1031,7 +1037,7 @@ def updateLocalVariableValue(self, varName, value):
                     string[] bits = oGlVar.FromGlobalVariable.Split(".");
                     string varDesc = "[\"" + String.Join("\"][\"", bits) + "\"]";
                     result += GenerateFilesUtils.GetIndentationStr(3, 4, oGlVar.InputLocalVariable + " = params[\"ParameterValues\"]" + varDesc);
-                    result += GenerateFilesUtils.GetIndentationStr(3, 4, "self._topicListener.updateLocalVariableValue(\"" + oGlVar.InputLocalVariable + "\", " + oGlVar.InputLocalVariable + ")");
+                    result += GenerateFilesUtils.GetIndentationStr(3, 4, "self._topicListener.updateLocalVariableValue(\"" + oGlVar.InputLocalVariable + "\", \"" + oGlVar.Consistency + "\", " + oGlVar.InputLocalVariable + ")");
                 }
             }
             result += GenerateFilesUtils.GetIndentationStr(2, 4, "except Exception as e:");
@@ -1076,7 +1082,7 @@ def updateLocalVariableValue(self, varName, value):
         result += GenerateFilesUtils.GetIndentationStr(4, 4, "self.get_logger().info(\"Service response received, moduleName=navigate\")");
         result += GenerateFilesUtils.GetIndentationStr(4, 4, "skillSuccess = result.success");
         result += GenerateFilesUtils.GetIndentationStr(4, 4, "registerLog(f\"Service response success: {skillSuccess}\")");
-        result += GenerateFilesUtils.GetIndentationStr(4, 4, "self._topicListener.updateLocalVariableValue(\"skillSuccess\", skillSuccess)");
+        result += GenerateFilesUtils.GetIndentationStr(4, 4, "self._topicListener.updateLocalVariableValue(\"skillSuccess\", \"DB\", skillSuccess)");
         result += GenerateFilesUtils.GetIndentationStr(4, 4, "if DEBUG:");
         result += GenerateFilesUtils.GetIndentationStr(5, 4, "print(\"navigate service terminated\")");
         result += GenerateFilesUtils.GetIndentationStr(3, 4, "else:");
@@ -1119,7 +1125,7 @@ def updateLocalVariableValue(self, varName, value):
         }
 
 
-     public static string GetAosRos2MiddlewareNodeFile(PLPsData data, InitializeProject initProj)
+public static string GetAosRos2MiddlewareNodeFile(PLPsData data, InitializeProject initProj)
 {
     string pythonVersion = "python3"; // ROS2 supports only Python 3
     string file = @"#!/usr/bin/" + pythonVersion + @"
@@ -1289,10 +1295,6 @@ class ListenToMongoDbCommands(Node):
 
 
 
-
-
-
-
 def main(args=None):
     rclpy.init(args=args)
     shared_state = SharedState1()
@@ -1319,7 +1321,39 @@ def main(args=None):
 ";
     return file;
 }
-     private static string GetModuleResponseFunctionPartV2(PLPsData data)
+
+public static List<LocalVariablesInitializationFromGlobalVariable> checkConsistencyInDB(PLPsData data)
+{
+    List<LocalVariablesInitializationFromGlobalVariable> resultList = new List<LocalVariablesInitializationFromGlobalVariable>();
+
+    foreach (RosGlue glue in data.RosGlues.Values)
+    {
+        foreach (var oVar in glue.GlueLocalVariablesInitializations)
+        {
+            if (oVar.Consistency == "DB")
+            {
+                string moduleName = glue.Name;
+                string varName = oVar.LocalVarName;
+
+                // Create an instance of LocalVariablesInitializationFromGlobalVariable
+                LocalVariablesInitializationFromGlobalVariable localVar = new LocalVariablesInitializationFromGlobalVariable
+                {
+                    VariableName = varName,
+                    Consistency = oVar.Consistency,
+                };
+
+                // Add the variable info to the result list
+                resultList.Add(localVar);
+            }
+        }
+    }
+
+    return resultList;
+}
+
+
+
+private static string GetModuleResponseFunctionPartV2(PLPsData data)
 {
     string result = "";
 
@@ -1373,8 +1407,7 @@ private static string GetListenToMongoCommandsFunctionPartV2(PLPsData data)
 {
     string result = "";
 
-    // Class definition and constructor
-    result += GenerateFilesUtils.GetIndentationStr(0, 4, "class AOS_TopicListenerServer(Node):");
+     result += GenerateFilesUtils.GetIndentationStr(0, 4, "class AOS_TopicListenerServer(Node):");
     result += GenerateFilesUtils.GetIndentationStr(1, 4, "def __init__(self, shared_state):");
     result += GenerateFilesUtils.GetIndentationStr(2, 4, "super().__init__('aos_topic_listener_server')");
     result += GenerateFilesUtils.GetIndentationStr(2, 4, "self.shared_state = shared_state");
@@ -1448,8 +1481,9 @@ private static string GetListenToMongoCommandsFunctionPartV2(PLPsData data)
             {
                 result += GenerateFilesUtils.GetIndentationStr(4, 4, "#-----------------------------------------------------------------------");
                 result += GenerateFilesUtils.GetIndentationStr(4, 4, "value = self." + glueTopic.Key + "_get_value_" + localVar.LocalVarName + "(msg)");
-                result += GenerateFilesUtils.GetIndentationStr(4, 4, "self.updateLocalVariableValue(\"" + localVar.LocalVarName + "\", value)");
-                result += GenerateFilesUtils.GetIndentationStr(4, 4, "self.updateLocalVariableValue(\"skillSuccess\", value)"); // Should be changed if needed
+                result += GenerateFilesUtils.GetIndentationStr(4, 4, "self.updateLocalVariableValue(\"" + localVar.LocalVarName + "\", \""+ localVar.Consistency+"\", value)");
+                Console.WriteLine(localVar.Consistency+"  coooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+                result += GenerateFilesUtils.GetIndentationStr(4, 4, "self.updateLocalVariableValue(\"skillSuccess\", DB, value)"); // Should be changed if needed
             }
         }
         result += GenerateFilesUtils.GetIndentationStr(2, 4, "except Exception as e:");
@@ -1502,27 +1536,49 @@ private static string GetListenToMongoCommandsFunctionPartV2(PLPsData data)
 
     // updateLocalVariableValue method
     result += @"
-    def updateLocalVariableValue(self, varName, value):
-        if DEBUG and varName not in getHeavyLocalVarList(self.listenTargetModule):
-            print(""update local var:"")
-            print(varName)
-            print(value)
-        if self.listenTargetModule not in self.localVarNamesAndValues:
-            return
-        if self.localVarNamesAndValues[self.listenTargetModule][varName] != value:
-            if DEBUG:
-                print(""ACTUAL UPDATE --------------------------------------------------------------------------"")
-            self.localVarNamesAndValues[self.listenTargetModule][varName] = value
-            if varName not in getHeavyLocalVarList(self.listenTargetModule):
-                aos_local_var_collection.replace_one({""Module"": self.listenTargetModule, ""VarName"": varName},
-                                                     {""Module"": self.listenTargetModule, ""VarName"": varName, ""Value"": value}, upsert=True)
-                aosStats_local_var_collection.insert_one(
-                    {""Module"": self.listenTargetModule, ""VarName"": varName, ""value"": value, ""Time"": datetime.datetime.utcnow()})
+    def updateLocalVariableValue(self, varName, Consistency, value):
+     if DEBUG and varName not in getHeavyLocalVarList(self.listenTargetModule):
+        print(""update local var:"")
+        print(varName)
+        print(value)
+
+     if self.listenTargetModule not in self.localVarNamesAndValues:
+        return
+
+     current_value = self.localVarNamesAndValues[self.listenTargetModule].get(varName)
+
+     if current_value != value:
+        if DEBUG:
+            print(""ACTUAL UPDATE --------------------------------------------------------------------------"")
+
+        self.localVarNamesAndValues[self.listenTargetModule][varName] = value
+
+        if varName not in getHeavyLocalVarList(self.listenTargetModule):
+            if Consistency == ""DB"":
+                # Save to statistics database
+                aos_local_var_collection1.replace_one(
+                    {""Module"": self.listenTargetModule, ""VarName"": varName},
+                    {""Module"": self.listenTargetModule, ""VarName"": varName, ""value"": value, ""Time"": datetime.datetime.utcnow()},
+                    upsert=True
+                )
+                aosStats_local_var_collection1.insert_one(
+                        {""Module"": self.listenTargetModule, ""VarName"": varName, ""value"": value, ""Time"": datetime.datetime.utcnow()})
                 if DEBUG:
-                    print(""WAS UPDATED --------------------------------------------------------------------------"")
+                    print(""WAS UPDATED IN DB -------------------------------------------------------------------"")
+
+            # Always save to main database
+            aos_local_var_collection.replace_one(
+                {""Module"": self.listenTargetModule, ""VarName"": varName},
+                {""Module"": self.listenTargetModule, ""VarName"": varName, ""Value"": value},
+                upsert=True
+            )
+            if DEBUG:
+                print(""WAS UPDATED --------------------------------------------------------------------------"")
+
 ";
     return result;
 }
+
    
 private static string shareClassMashehoKazy(PLPsData data)
 {

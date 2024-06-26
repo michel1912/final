@@ -958,6 +958,9 @@ public string GetModelHash()
                     {
                         GlueLocalVariablesInitialization oVar = new GlueLocalVariablesInitialization();
                         oVar.LocalVarName = GetBsonStringField(docVar, "LocalVariableName");
+                        oVar.Consistency = GetBsonStringField(docVar, "Consistency");//add for new feature
+
+                        
                         oVar.RosTopicPath = GetBsonStringField(docVar, "RosTopicPath");
                         oVar.TopicMessageType = GetBsonStringField(docVar, "TopicMessageType");
                         oVar.IsHeavyVariable = docVar.Contains("IsHeavyVariable") ? docVar["IsHeavyVariable"].AsBoolean : false;
@@ -982,6 +985,12 @@ public string GetModelHash()
                         {
                             errors.Add(plpDescription + ", 'LocalVariablesInitialization', contains an element without a definition for 'LocalVariableName', which is a mandatory field!");
                         }
+                        
+                        if (oVar.Consistency == null)
+                        {
+                            errors.Add(plpDescription + ", 'LocalVariablesInitialization', contains an element without a definition for 'Consistency', which is a mandatory field!");
+                        }
+                        
 
                         if (oVar.AssignmentCode == null)
                         {

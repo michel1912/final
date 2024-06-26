@@ -95,6 +95,9 @@ namespace WebApiCSharp.JsonTextModel
     {
         public bool? FromROSServiceResponse{get;set;}
         public string LocalVariableName{get;set;}
+        public string Consistency{get;set;} //added to new feature
+
+        
         public string VariableType{get;set;}
         public string RosTopicPath{get;set;}
         public string TopicMessageType{get;set;}
