@@ -12,7 +12,9 @@ public class LocalVariableDB
 
     [BsonElement("VarName")]
     public string Name{get;set;}
-
+    
+    [BsonElement("Index")]
+    public int Index{get;set;}
 
     [BsonElement("Value")]
     public object Value{get;set;}

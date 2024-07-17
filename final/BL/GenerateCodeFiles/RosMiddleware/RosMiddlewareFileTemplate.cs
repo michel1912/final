@@ -327,7 +327,7 @@ include_directories(
                     GlueLocalVariablesInitialization localVarFromServiceReponse = glue.GlueLocalVariablesInitializations.Where(x => x.FromROSServiceResponse.HasValue && x.FromROSServiceResponse.Value).FirstOrDefault();
                     result += GenerateFilesUtils.GetIndentationStr(3, 4, "registerLog(\"Service response received, moduleName:"+ glue.Name+"\")");
                     if (localVarFromServiceReponse != null)
-                    {
+                    {   
                         result += GenerateFilesUtils.GetIndentationStr(3, 4, localVarFromServiceReponse.AssignmentCode, true, true);
                         result += GenerateFilesUtils.GetIndentationStr(3, 4, "self._topicListener.updateLocalVariableValue(\"" + localVarFromServiceReponse.LocalVarName + "\"," + localVarFromServiceReponse.LocalVarName + ")");
                     }
