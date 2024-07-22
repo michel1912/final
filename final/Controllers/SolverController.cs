@@ -14,7 +14,6 @@ namespace WebApiCSharp.Controllers
     [Route("[controller]")]
     public class SolverController : ControllerBase
     { 
-
         private readonly ILogger<SolverController> _logger;
 
         public SolverController(ILogger<SolverController> logger)
@@ -22,21 +21,11 @@ namespace WebApiCSharp.Controllers
             _logger = logger;
         }
 
-
         [HttpGet]
         public List<Solver> GetAll()
         {
             return SolversService.Get();
         }
-        // public IEnumerable<Solver> Get()
-        // {
-        //     var rng = new Random();
-        //     return Enumerable.Range(1, 5).Select(index => new Solver
-        //     {
-        //         Name="2"
-        //     })
-        //     .ToArray();
-        // }
 
         [HttpGet("{id}")]
         public ActionResult<Solver> Get(int id)
