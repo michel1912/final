@@ -15,41 +15,57 @@ namespace WebApiCSharp.GenerateCodeFiles
     {
         #region public PLP data
 
-        public static string GetFatalErrorMsg(string PLPDesc, Exception e) { return (PLPDesc == null ? "" : PLPDesc) + " Fatal Error!!!" + Environment.NewLine + e.ToString(); }
+        public static string GetFatalErrorMsg(string PLPDesc, Exception e)
+        {
+            return (PLPDesc == null ? "" : PLPDesc) + " Fatal Error!!!" + Environment.NewLine + e.ToString();
+        }
+
         public double MaxReward;
         public double MinReward;
 
         public int Horizon { get; set; }
         public float Discount { get; set; }
-  
 
-        public Dictionary<string, DistributionSample> DistributionSamples = new Dictionary<string, DistributionSample>();
+
+        public Dictionary<string, DistributionSample>
+            DistributionSamples = new Dictionary<string, DistributionSample>();
+
         public Dictionary<string, PLP> PLPs = new Dictionary<string, PLP>();
         public Dictionary<string, RosGlue> RosGlues = new Dictionary<string, RosGlue>();
 
-        public bool OneStateModel = false;//no previos state or after Extrinsic changes state, only one state (changes override it)
-        public bool HasExtrinsicChanges {
-            get{return !(ExtrinsicChangesDynamicModel.Count() == 0);}
-        }
+        public bool
+            OneStateModel =
+                false; //no previos state or after Extrinsic changes state, only one state (changes override it)
 
-        public bool HasPrintStateFunc{get{return !(PrintStateFunc.Count() == 0);}}
-        public bool HasDynamicModelChanges {
-            get
+        public bool HasExtrinsicChanges
         {
-            bool hasChanges = false;
-            foreach(var plp in PLPs.Values)
-            {
-                hasChanges |= plp.DynamicModel_VariableAssignments.Count() > 0;
-            }
-            return hasChanges;
+            get { return !(ExtrinsicChangesDynamicModel.Count() == 0); }
         }
 
+        public bool HasPrintStateFunc
+        {
+            get { return !(PrintStateFunc.Count() == 0); }
         }
+
+        public bool HasDynamicModelChanges
+        {
+            get
+            {
+                bool hasChanges = false;
+                foreach (var plp in PLPs.Values)
+                {
+                    hasChanges |= plp.DynamicModel_VariableAssignments.Count() > 0;
+                }
+
+                return hasChanges;
+            }
+        }
+
         public List<SpecialState> SpecialStates = new List<SpecialState>();
         public List<LocalVariableConstant> LocalVariableConstants = new List<LocalVariableConstant>();
         public List<LocalVariableTypePLP> LocalVariableTypes = new List<LocalVariableTypePLP>();
         public string ProjectName { get; set; }
-      
+
         public string ProjectNameWithCapitalLetter { get; set; }
         public List<Assignment> InitialBeliefAssignments = new List<Assignment>();
         public List<Assignment> ExtrinsicChangesDynamicModel = new List<Assignment>();
@@ -59,12 +75,13 @@ namespace WebApiCSharp.GenerateCodeFiles
         public List<CompoundVarTypePLP> GlobalCompoundTypes = new List<CompoundVarTypePLP>();
 
         public List<LocalVariableBase> LocalVariablesListings = new List<LocalVariableBase>();
-    
+
         public List<GlobalVariableDeclaration> GlobalVariableDeclarations = new List<GlobalVariableDeclaration>();
 
         public List<string> AnyValueStateVariableNames = new List<string>();
 
         #endregion
+
         public const string GLOBAL_VARIABLE_STATE_REF = "state.";
         public const string PLP_TYPE_NAME_ENVIRONMENT = "Environment";
         public const string PLP_TYPE_NAME_ENVIRONMENT_ExtrinsicChanges = "Environment_ExtrinsicChanges";
@@ -84,23 +101,41 @@ namespace WebApiCSharp.GenerateCodeFiles
         public const string BOOL_VARIABLE_TYPE_NAME = "bool";
         public const string STRING_VARIABLE_TYPE_NAME = "string";
         public const string DOUBLE_VARIABLE_TYPE_NAME = "double";
-        public static readonly string[] PRIMITIVE_TYPES = { FLOAT_VARIABLE_TYPE_NAME, ENUM_VARIABLE_TYPE_NAME, INT_VARIABLE_TYPE_NAME, BOOL_VARIABLE_TYPE_NAME , DOUBLE_VARIABLE_TYPE_NAME, STRING_VARIABLE_TYPE_NAME};
+
+        public static readonly string[] PRIMITIVE_TYPES =
+        {
+            FLOAT_VARIABLE_TYPE_NAME, ENUM_VARIABLE_TYPE_NAME, INT_VARIABLE_TYPE_NAME, BOOL_VARIABLE_TYPE_NAME,
+            DOUBLE_VARIABLE_TYPE_NAME, STRING_VARIABLE_TYPE_NAME
+        };
+
         public const string MODULE_EXECUTION_TIME_VARIABLE_NAME = "__moduleExecutionTime";
         public const string MODULE_REWARD_VARIABLE_NAME = "__reward";
 
-        public const string DISCRETE_DISTRIBUTION_FUNCTION_NAME = "AOS.SampleDiscrete"; //AOS.SampleDiscrete(enumRealCase,{0.8, 0.1,0,0.1})
+        public const string
+            DISCRETE_DISTRIBUTION_FUNCTION_NAME =
+                "AOS.SampleDiscrete"; //AOS.SampleDiscrete(enumRealCase,{0.8, 0.1,0,0.1})
+
         public const string NORMAL_DISTRIBUTION_FUNCTION_NAME = "AOS.SampleNormal"; //AOS.SampleNormal(40000,10000)
         public const string UNIFORM_DISTRIBUTION_FUNCTION_NAME = "AOS.SampleUniform"; //AOS.SampleUniform(40000,10000)
 
 
         public const string AOS_SET_NULL_FUNCTION_NAME = "AOS.SetNull"; //"AOS.SetNull(state__.cupAccurateLocation)"
-        public const string AOS_IS_INITIALIZED_FUNCTION_NAME = "AOS.IsInitialized"; //"AOS.IsInitialized(state__.cupAccurateLocation)"
-        public const string AOS_UN_INITIALIZED_FUNCTION_NAME = "AOS.Uninitialize";//AOS.Uninitialize(state__.cupAccurateLocation)
-        public const string AOS_INITIALIZED_FUNCTION_NAME = "AOS.Initialize";//AOS.Initialize(state__.cupAccurateLocation)
 
-        public const string AOS_Bernoulli_FUNCTION_NAME = "AOS.Bernoulli"; //AOS.Bernoulli(0.9)  :replaced by 'AOSUtils::Bernoulli(0.9)', which is implemented in cpp
+        public const string
+            AOS_IS_INITIALIZED_FUNCTION_NAME = "AOS.IsInitialized"; //"AOS.IsInitialized(state__.cupAccurateLocation)"
 
-        #region private variables 
+        public const string
+            AOS_UN_INITIALIZED_FUNCTION_NAME = "AOS.Uninitialize"; //AOS.Uninitialize(state__.cupAccurateLocation)
+
+        public const string
+            AOS_INITIALIZED_FUNCTION_NAME = "AOS.Initialize"; //AOS.Initialize(state__.cupAccurateLocation)
+
+        public const string
+            AOS_Bernoulli_FUNCTION_NAME =
+                "AOS.Bernoulli"; //AOS.Bernoulli(0.9)  :replaced by 'AOSUtils::Bernoulli(0.9)', which is implemented in cpp
+
+        #region private variables
+
         private string tempPlpName = "";
         private string tempPlpType = "";
         private BsonDocument environmentPLP = null;
@@ -108,74 +143,79 @@ namespace WebApiCSharp.GenerateCodeFiles
         private BsonDocument environmentGlue = null;
         private Dictionary<string, BsonDocument> bsonPlps = new Dictionary<string, BsonDocument>();
         private Dictionary<string, BsonDocument> bsonGlues = new Dictionary<string, BsonDocument>();
+
         #endregion
 
 
-
-
-private string GetLocalVariableTypeByGlobalVarName(string globalVarName, string skillName)
-{
-    PLP plp = PLPs[skillName];
-    string[] bits = globalVarName.Split('.');
-    string globalVarType = plp.GlobalVariableModuleParameters.Where(x=> x.Name == bits[0]).FirstOrDefault()?.Type;
-    bits[0] = globalVarType;
-    
-    for(int i=0; i < bits.Length;i++)
-    {
-        if(GenerateFilesUtils.IsPrimitiveType(bits[i], true))
+        private string GetLocalVariableTypeByGlobalVarName(string globalVarName, string skillName)
         {
-            return bits[i] == ANY_VALUE_TYPE_NAME ? "bool" : bits[i];
-        }    
-        else
-        {
-            CompoundVarTypePLP gl1 = GlobalCompoundTypes.Where(x=> x.TypeName == bits[i]).FirstOrDefault();        
-            if(gl1 == null)
+            PLP plp = PLPs[skillName];
+            string[] bits = globalVarName.Split('.');
+            string globalVarType =
+                plp.GlobalVariableModuleParameters.Where(x => x.Name == bits[0]).FirstOrDefault()?.Type;
+            bits[0] = globalVarType;
+
+            for (int i = 0; i < bits.Length; i++)
             {
-                throw new Exception("Skill '"+skillName+"' defines a local variable based on the global variable '"+globalVarName+"'. Could not find compound type named '"+bits[i]+"'!");
-            }
-            else
-            {
-                CompoundVarTypePLP_Variable v1 = gl1.Variables.Where(x=> x.Name == bits[i+1]).FirstOrDefault();
-                if(gl1 == null)
+                if (GenerateFilesUtils.IsPrimitiveType(bits[i], true))
                 {
-                    throw new Exception("Skill '"+skillName+"' defines a local variable based on the global variable '"+globalVarName+"'. Could not find the field '"+bits[i+1]+"'in compound type named '"+bits[i]+"'!");
+                    return bits[i] == ANY_VALUE_TYPE_NAME ? "bool" : bits[i];
                 }
-                bits[i+1]=v1.Type;
+                else
+                {
+                    CompoundVarTypePLP gl1 = GlobalCompoundTypes.Where(x => x.TypeName == bits[i]).FirstOrDefault();
+                    if (gl1 == null)
+                    {
+                        throw new Exception("Skill '" + skillName +
+                                            "' defines a local variable based on the global variable '" +
+                                            globalVarName + "'. Could not find compound type named '" + bits[i] + "'!");
+                    }
+                    else
+                    {
+                        CompoundVarTypePLP_Variable v1 = gl1.Variables.Where(x => x.Name == bits[i + 1])
+                            .FirstOrDefault();
+                        if (gl1 == null)
+                        {
+                            throw new Exception("Skill '" + skillName +
+                                                "' defines a local variable based on the global variable '" +
+                                                globalVarName + "'. Could not find the field '" + bits[i + 1] +
+                                                "'in compound type named '" + bits[i] + "'!");
+                        }
+
+                        bits[i + 1] = v1.Type;
+                    }
+                }
             }
-                
+
+            return "";
         }
-        
-        
-    } 
-    return "";
-}
 
-public string GetModelHash()
-{
-    string res = "";
-    res = environmentPLP.ToString();
-    foreach (KeyValuePair<string, BsonDocument> plp in bsonPlps)
-                {
-                    res+=plp.ToString();
-                }
-                using (var sha = new System.Security.Cryptography.SHA256Managed())
-    {
-        // Convert the string to a byte array first, to be processed
-        byte[] textBytes = System.Text.Encoding.UTF8.GetBytes(res);
-        byte[] hashBytes = sha.ComputeHash(textBytes);
-        
-        // Convert back to a string, removing the '-' that BitConverter adds
-        string hash = BitConverter
-            .ToString(hashBytes)
-            .Replace("-", String.Empty);
+        public string GetModelHash()
+        {
+            string res = "";
+            res = environmentPLP.ToString();
+            foreach (KeyValuePair<string, BsonDocument> plp in bsonPlps)
+            {
+                res += plp.ToString();
+            }
 
-        return hash;
-    } 
+            using (var sha = new System.Security.Cryptography.SHA256Managed())
+            {
+                // Convert the string to a byte array first, to be processed
+                byte[] textBytes = System.Text.Encoding.UTF8.GetBytes(res);
+                byte[] hashBytes = sha.ComputeHash(textBytes);
 
-}
+                // Convert back to a string, removing the '-' that BitConverter adds
+                string hash = BitConverter
+                    .ToString(hashBytes)
+                    .Replace("-", String.Empty);
+
+                return hash;
+            }
+        }
 
         public PLPsData(out List<string> errors)
-        { 
+        {
             errors = new List<string>();
             try
             {
@@ -193,10 +233,10 @@ public string GetModelHash()
                 List<string> tempErrors = new List<string>();
                 foreach (KeyValuePair<string, BsonDocument> plp in bsonPlps)
                 {
-
                     PLPs.Add(plp.Key, (PLP)ProcessModuleDocumentationFile(plp.Value, out tempErrors));
                     errors.AddRange(tempErrors);
                 }
+
                 foreach (KeyValuePair<string, BsonDocument> plp in bsonGlues)
                 {
                     tempErrors.Clear();
@@ -217,21 +257,22 @@ public string GetModelHash()
                 errors.Add(GetFatalErrorMsg(null, e));
             }
         }
+
         //AOS.SampleDiscrete(enumRealCase,{0.8, 0.1,0,0.1})//AOS.SampleNormal(40000,10000)//AOS.SampleUniform(40000,10000)
-        private void GetSampleDistributionFunctions(List<KeyValuePair<string, string>> allCodeSections, DistributionType type)
+        private void GetSampleDistributionFunctions(List<KeyValuePair<string, string>> allCodeSections,
+            DistributionType type)
         {
             foreach (KeyValuePair<string, string> code in allCodeSections)
             {
                 //original line
                 //string c = code.Key.Replace(" ", "");
-                string c = code.Key;//Or Wertheim removed the replace(" ","")
+                string c = code.Key; //Or Wertheim removed the replace(" ","")
                 bool found = false;
                 string functionName = type == DistributionType.Normal ? NORMAL_DISTRIBUTION_FUNCTION_NAME :
-                        type == DistributionType.Discrete ? DISCRETE_DISTRIBUTION_FUNCTION_NAME :
-                        type == DistributionType.Uniform ? UNIFORM_DISTRIBUTION_FUNCTION_NAME : null;
+                    type == DistributionType.Discrete ? DISCRETE_DISTRIBUTION_FUNCTION_NAME :
+                    type == DistributionType.Uniform ? UNIFORM_DISTRIBUTION_FUNCTION_NAME : null;
                 do
                 {
-
                     int index = c.IndexOf(functionName);
 
                     found = index > -1;
@@ -246,32 +287,38 @@ public string GetModelHash()
 
                         if (type == DistributionType.Normal || type == DistributionType.Uniform)
                         {
-                            dist.Parameters.AddRange(dist.FunctionDescription.Substring(functionName.Length).Replace("(", "").Replace(")", "").Split(","));
+                            dist.Parameters.AddRange(dist.FunctionDescription.Substring(functionName.Length)
+                                .Replace("(", "").Replace(")", "").Split(","));
                         }
+
                         if (type == DistributionType.Discrete)
                         {
                             int startEnumIndex = dist.FunctionDescription.IndexOf("(") + 1;
                             int enumWordLength = dist.FunctionDescription.IndexOf(",") - startEnumIndex;
                             dist.Parameters.Add(dist.FunctionDescription.Substring(startEnumIndex, enumWordLength));
-                            dist.Parameters.AddRange(dist.FunctionDescription.Substring(dist.FunctionDescription.IndexOf("{")).Replace("{", "").Replace("}", "").Replace(")", "").Split(","));
+                            dist.Parameters.AddRange(dist.FunctionDescription
+                                .Substring(dist.FunctionDescription.IndexOf("{")).Replace("{", "").Replace("}", "")
+                                .Replace(")", "").Split(","));
                         }
 
                         string key = dist.FromFile + "_" + dist.FunctionDescription;
                         if (!DistributionSamples.ContainsKey(key))
                         {
                             foreach (string par in dist.Parameters)
-                            {  
-                                if(GlobalCompoundTypes.Where(x => x.TypeName.Equals(par)).FirstOrDefault() != null)
+                            {
+                                if (GlobalCompoundTypes.Where(x => x.TypeName.Equals(par)).FirstOrDefault() != null)
                                 {
                                     dist.HasParameterAsGlobalType = true;
                                     break;
                                 }
-                                if(GlobalEnumTypes.Where(x => x.TypeName.Equals(par)).FirstOrDefault() != null)
+
+                                if (GlobalEnumTypes.Where(x => x.TypeName.Equals(par)).FirstOrDefault() != null)
                                 {
                                     dist.HasParameterAsGlobalType = true;
                                     break;
                                 }
                             }
+
                             DistributionSamples.Add(key, dist);
                         }
                     }
@@ -286,7 +333,8 @@ public string GetModelHash()
             {
                 if (DistributionSamples[key].Type == type)
                 {
-                    DistributionSamples[key].C_VariableName = DistributionSamples[key].FromFile + "_" + nameBase + i.ToString();
+                    DistributionSamples[key].C_VariableName =
+                        DistributionSamples[key].FromFile + "_" + nameBase + i.ToString();
                     i++;
                 }
             }
@@ -296,7 +344,7 @@ public string GetModelHash()
         {
             List<KeyValuePair<string, string>> codeSections = new List<KeyValuePair<string, string>>();
 
-            List<Assignment> assignments = new List<Assignment>(); 
+            List<Assignment> assignments = new List<Assignment>();
 
             foreach (PLP plp in PLPs.Values)
             {
@@ -315,7 +363,7 @@ public string GetModelHash()
                     codeSections.Add(new KeyValuePair<string, string>(assign.AssignmentCode, plp.Name));
                 }
             }
- 
+
 
             foreach (Assignment assign in InitialBeliefAssignments)
             {
@@ -331,13 +379,14 @@ public string GetModelHash()
             {
                 codeSections.Add(new KeyValuePair<string, string>(assign.AssignmentCode, PLP_TYPE_NAME_ENVIRONMENT));
             }
-            
+
 
             foreach (GlobalVariableDeclaration globalVarDec in GlobalVariableDeclarations)
             {
                 if (globalVarDec.DefaultCode != null)
                 {
-                    codeSections.Add(new KeyValuePair<string, string>(globalVarDec.DefaultCode, PLP_TYPE_NAME_ENVIRONMENT));
+                    codeSections.Add(new KeyValuePair<string, string>(globalVarDec.DefaultCode,
+                        PLP_TYPE_NAME_ENVIRONMENT));
                 }
             }
 
@@ -360,7 +409,8 @@ public string GetModelHash()
                 rewards.Add(plp.Preconditions_ViolatingPreconditionPenalty);
                 foreach (Assignment assign in plp.DynamicModel_VariableAssignments)
                 {
-                    rewards.AddRange(GetVariableAssignmentsFrom_C_Code(assign.AssignmentCode, MODULE_REWARD_VARIABLE_NAME));
+                    rewards.AddRange(
+                        GetVariableAssignmentsFrom_C_Code(assign.AssignmentCode, MODULE_REWARD_VARIABLE_NAME));
                 }
             }
 
@@ -390,8 +440,10 @@ public string GetModelHash()
 
             if (!plp["PlpMain"]["Project"].ToString().Equals(ProjectName))
             {
-                errors.Add("The PLPs directory contains PLPs of different project ('" + ProjectName + "' [plp name='" + tempPlpName + "', type='" + tempPlpType + "'],'" + plp["PlpMain"]["Project"].ToString() +
-                "' [plp name='" + plp["PlpMain"]["Name"].ToString() + "', type='" + plp["PlpMain"]["Type"].ToString() + "'])!");
+                errors.Add("The PLPs directory contains PLPs of different project ('" + ProjectName + "' [plp name='" +
+                           tempPlpName + "', type='" + tempPlpType + "'],'" + plp["PlpMain"]["Project"].ToString() +
+                           "' [plp name='" + plp["PlpMain"]["Name"].ToString() + "', type='" +
+                           plp["PlpMain"]["Type"].ToString() + "'])!");
             }
 
             switch (plp["PlpMain"]["Type"].ToString())
@@ -399,62 +451,81 @@ public string GetModelHash()
                 case PLP_TYPE_NAME_ENVIRONMENT:
                     if (environmentPLP != null)
                     {
-                        errors.Add("There are two PLPs of type '" + PLP_TYPE_NAME_ENVIRONMENT + "', only one is allowed!");
+                        errors.Add("There are two PLPs of type '" + PLP_TYPE_NAME_ENVIRONMENT +
+                                   "', only one is allowed!");
                     }
                     else
                     {
                         environmentPLP = plp;
                         environmentPLP_Name = environmentPLP["PlpMain"]["Name"].ToString();
-                        if (!environmentPLP.Contains("EnvironmentGeneral") || !environmentPLP["EnvironmentGeneral"].AsBsonDocument.Contains("Horizon") || !environmentPLP["EnvironmentGeneral"]["Horizon"].IsInt32)
+                        if (!environmentPLP.Contains("EnvironmentGeneral") ||
+                            !environmentPLP["EnvironmentGeneral"].AsBsonDocument.Contains("Horizon") ||
+                            !environmentPLP["EnvironmentGeneral"]["Horizon"].IsInt32)
                         {
-                            errors.Add(GetPLPDescriptionForError(environmentPLP_Name, PLP_TYPE_NAME_ENVIRONMENT) + ", \"EnvironmentGeneral.Horizon\" must be defined with integer value!");
+                            errors.Add(GetPLPDescriptionForError(environmentPLP_Name, PLP_TYPE_NAME_ENVIRONMENT) +
+                                       ", \"EnvironmentGeneral.Horizon\" must be defined with integer value!");
                         }
+
                         Horizon = environmentPLP["EnvironmentGeneral"]["Horizon"].AsInt32;
 
-                        if (!environmentPLP.Contains("EnvironmentGeneral") || !environmentPLP["EnvironmentGeneral"].AsBsonDocument.Contains("Discount") || !environmentPLP["EnvironmentGeneral"]["Discount"].IsDouble)
+                        if (!environmentPLP.Contains("EnvironmentGeneral") ||
+                            !environmentPLP["EnvironmentGeneral"].AsBsonDocument.Contains("Discount") ||
+                            !environmentPLP["EnvironmentGeneral"]["Discount"].IsDouble)
                         {
-                            errors.Add(GetPLPDescriptionForError(environmentPLP_Name, PLP_TYPE_NAME_ENVIRONMENT) + ", \"EnvironmentGeneral.Discount\" must be defined with decimal value!");
+                            errors.Add(GetPLPDescriptionForError(environmentPLP_Name, PLP_TYPE_NAME_ENVIRONMENT) +
+                                       ", \"EnvironmentGeneral.Discount\" must be defined with decimal value!");
                         }
+
                         Discount = (float)environmentPLP["EnvironmentGeneral"]["Discount"].AsDouble;
 
-                        OneStateModel = environmentPLP.Contains("EnvironmentGeneral") && environmentPLP["EnvironmentGeneral"].AsBsonDocument.Contains("OneStateModel") ? environmentPLP["EnvironmentGeneral"]["OneStateModel"].AsBoolean : false;
+                        OneStateModel =
+                            environmentPLP.Contains("EnvironmentGeneral") && environmentPLP["EnvironmentGeneral"]
+                                .AsBsonDocument.Contains("OneStateModel")
+                                ? environmentPLP["EnvironmentGeneral"]["OneStateModel"].AsBoolean
+                                : false;
                     }
+
                     break;
                 case PLP_TYPE_NAME_ENVIRONMENT_GLUE:
                     if (environmentGlue != null)
                     {
-                        errors.Add("There are two PLPs of type '" + PLP_TYPE_NAME_ENVIRONMENT_GLUE + "', only one is allowed!");
+                        errors.Add("There are two PLPs of type '" + PLP_TYPE_NAME_ENVIRONMENT_GLUE +
+                                   "', only one is allowed!");
                     }
                     else
                     {
                         environmentGlue = plp;
                     }
+
                     break;
                 case PLP_TYPE_NAME_PLP:
                     if (bsonPlps.ContainsKey(plp["PlpMain"]["Name"].ToString()))
                     {
-                        errors.Add("There are two PLPs of name '" + plp["PlpMain"]["Name"] + "' and type '" + PLP_TYPE_NAME_PLP + "', only one is allowed!");
+                        errors.Add("There are two PLPs of name '" + plp["PlpMain"]["Name"] + "' and type '" +
+                                   PLP_TYPE_NAME_PLP + "', only one is allowed!");
                     }
                     else
                     {
                         bsonPlps.Add(plp["PlpMain"]["Name"].ToString(), plp);
                     }
+
                     break;
                 case PLP_TYPE_NAME_GLUE:
                     if (bsonGlues.ContainsKey(plp["PlpMain"]["Name"].ToString()))
                     {
-                        errors.Add("There are two PLPs of name '" + plp["PlpMain"]["Name"] + "' and type '" + PLP_TYPE_NAME_GLUE + "', only one is allowed!");
+                        errors.Add("There are two PLPs of name '" + plp["PlpMain"]["Name"] + "' and type '" +
+                                   PLP_TYPE_NAME_GLUE + "', only one is allowed!");
                     }
                     else
                     {
                         bsonGlues.Add(plp["PlpMain"]["Name"].ToString(), plp);
                     }
+
                     break;
             }
 
             return errors;
         }
-
 
 
         private List<double> GetVariableAssignmentsFrom_C_Code(string code, string variableName)
@@ -465,7 +536,9 @@ public string GetModelHash()
             do
             {
                 found = code.IndexOf(MODULE_REWARD_VARIABLE_NAME) > -1;
-                code = found ? code.Substring(code.IndexOf(MODULE_REWARD_VARIABLE_NAME) + MODULE_REWARD_VARIABLE_NAME.Length) : "";
+                code = found
+                    ? code.Substring(code.IndexOf(MODULE_REWARD_VARIABLE_NAME) + MODULE_REWARD_VARIABLE_NAME.Length)
+                    : "";
                 if (code.StartsWith("=") && code.Contains(";"))
                 {
                     string temp = code.Substring(1, code.IndexOf(";") - 1);
@@ -477,6 +550,7 @@ public string GetModelHash()
                     }
                 }
             } while (found);
+
             return values;
         }
 
@@ -494,8 +568,10 @@ public string GetModelHash()
                     foreach (BsonValue bVar in docType["Variables"].AsBsonArray)
                     {
                         BsonDocument docVar = bVar.AsBsonDocument;
-                        localVar.SubFields.Add(new LocalVariableCompoundTypeField() { FieldName = docVar["Name"].ToString(), FieldType = docVar["Type"].ToString() });
+                        localVar.SubFields.Add(new LocalVariableCompoundTypeField()
+                            { FieldName = docVar["Name"].ToString(), FieldType = docVar["Type"].ToString() });
                     }
+
                     LocalVariableTypes.Add(localVar);
                 }
 
@@ -513,6 +589,7 @@ public string GetModelHash()
                 }
             }
         }
+
         private List<string> ProcessEnvironmentFile()
         {
             List<string> errors = new List<string>();
@@ -524,7 +601,6 @@ public string GetModelHash()
             return errors;
         }
 
-        
 
         private List<string> GetBeliefStateAssignments_ExtrinsicChangesDynamicModel_AndSpecialStates()
         {
@@ -532,25 +608,30 @@ public string GetModelHash()
             List<string> tempErrors = new List<string>();
 
             tempErrors.Clear();
-            List<Assignment> extrinsicChangesDynamicModel = !environmentPLP.Contains("ExtrinsicChangesDynamicModel") ? new List<Assignment>() : LoadAssignment(environmentPLP["ExtrinsicChangesDynamicModel"].AsBsonArray, environmentPLP_Name,
-                PLP_TYPE_NAME_ENVIRONMENT, out tempErrors, EStateType.eAfterExtrinsicChangesState);
+            List<Assignment> extrinsicChangesDynamicModel = !environmentPLP.Contains("ExtrinsicChangesDynamicModel")
+                ? new List<Assignment>()
+                : LoadAssignment(environmentPLP["ExtrinsicChangesDynamicModel"].AsBsonArray, environmentPLP_Name,
+                    PLP_TYPE_NAME_ENVIRONMENT, out tempErrors, EStateType.eAfterExtrinsicChangesState);
             errors.AddRange(tempErrors);
             ExtrinsicChangesDynamicModel.AddRange(extrinsicChangesDynamicModel);
 
 
             tempErrors.Clear();
-            List<Assignment> initialBeliefStateAssignments = !environmentPLP.Contains("InitialBeliefStateAssignments") ? new List<Assignment>() : LoadAssignment(environmentPLP["InitialBeliefStateAssignments"].AsBsonArray, environmentPLP_Name,
-                PLP_TYPE_NAME_ENVIRONMENT, out tempErrors, EStateType.ePreviousState);
+            List<Assignment> initialBeliefStateAssignments = !environmentPLP.Contains("InitialBeliefStateAssignments")
+                ? new List<Assignment>()
+                : LoadAssignment(environmentPLP["InitialBeliefStateAssignments"].AsBsonArray, environmentPLP_Name,
+                    PLP_TYPE_NAME_ENVIRONMENT, out tempErrors, EStateType.ePreviousState);
             errors.AddRange(tempErrors);
             InitialBeliefAssignments.AddRange(initialBeliefStateAssignments);
 
-            
+
             tempErrors.Clear();
-            List<Assignment> printStateFunc = !environmentPLP.Contains("PrintStateFunc") ? new List<Assignment>() : LoadAssignment(environmentPLP["PrintStateFunc"].AsBsonArray, environmentPLP_Name,
-                PLP_TYPE_NAME_ENVIRONMENT, out tempErrors, EStateType.ePreviousState);
+            List<Assignment> printStateFunc = !environmentPLP.Contains("PrintStateFunc")
+                ? new List<Assignment>()
+                : LoadAssignment(environmentPLP["PrintStateFunc"].AsBsonArray, environmentPLP_Name,
+                    PLP_TYPE_NAME_ENVIRONMENT, out tempErrors, EStateType.ePreviousState);
             errors.AddRange(tempErrors);
             PrintStateFunc.AddRange(printStateFunc);
-
 
 
             foreach (BsonValue bState in environmentPLP["SpecialStates"].AsBsonArray)
@@ -559,23 +640,31 @@ public string GetModelHash()
                 {
                     BsonDocument docState = bState.AsBsonDocument;
                     SpecialState spState = new SpecialState();
-                    
-                    if(docState.Contains("StateFunctionCode"))
+
+                    if (docState.Contains("StateFunctionCode"))
                     {
-                        if(docState.Contains("IsGoalState") || docState.Contains("IsGoalState") || docState.Contains("IsGoalState"))
+                        if (docState.Contains("IsGoalState") || docState.Contains("IsGoalState") ||
+                            docState.Contains("IsGoalState"))
                         {
-                            throw new Exception("SpecialState.StateFunctionCode cannot be defined alongside IsGoalState, StateConditionCode, or IsOneTimeReward");
+                            throw new Exception(
+                                "SpecialState.StateFunctionCode cannot be defined alongside IsGoalState, StateConditionCode, or IsOneTimeReward");
                         }
-                    tempErrors.Clear();
-                    spState.StateFunctionCode = LoadAssignment(docState["StateFunctionCode"].AsBsonArray, environmentPLP_Name,
-                                    PLP_TYPE_NAME_ENVIRONMENT, out tempErrors, EStateType.ePreviousState);
-                    errors.AddRange(tempErrors);
+
+                        tempErrors.Clear();
+                        spState.StateFunctionCode = LoadAssignment(docState["StateFunctionCode"].AsBsonArray,
+                            environmentPLP_Name,
+                            PLP_TYPE_NAME_ENVIRONMENT, out tempErrors, EStateType.ePreviousState);
+                        errors.AddRange(tempErrors);
                     }
                     else
                     {
-                        spState.IsGoalState = !docState.Contains("IsGoalState") ? false : docState["IsGoalState"].AsBoolean;
+                        spState.IsGoalState = !docState.Contains("IsGoalState")
+                            ? false
+                            : docState["IsGoalState"].AsBoolean;
                         spState.StateConditionCode = docState["StateConditionCode"].ToString();
-                        spState.IsOneTimeReward = !docState.Contains("IsOneTimeReward") ? false : docState["IsOneTimeReward"].AsBoolean;
+                        spState.IsOneTimeReward = !docState.Contains("IsOneTimeReward")
+                            ? false
+                            : docState["IsOneTimeReward"].AsBoolean;
                         spState.Reward = docState["Reward"].AsDouble;
                     }
 
@@ -584,13 +673,13 @@ public string GetModelHash()
 
                 catch (Exception e2)
                 {
-                    errors.Add(GetPLPDescriptionForError(environmentPLP_Name, PLP_TYPE_NAME_ENVIRONMENT) + ", if \"SpecialStates.StateFunctionCode\" is defined, no other fields are allowed o.w \"SpecialStates.IsGoalState\" (default is 'false') and \"IsOneTimeReward\"(default is 'false') must be boolean,  \"SpecialStates.Reward\" must be decimal, \"SpecialStates.StateConditionCode\" must be defined!");
+                    errors.Add(GetPLPDescriptionForError(environmentPLP_Name, PLP_TYPE_NAME_ENVIRONMENT) +
+                               ", if \"SpecialStates.StateFunctionCode\" is defined, no other fields are allowed o.w \"SpecialStates.IsGoalState\" (default is 'false') and \"IsOneTimeReward\"(default is 'false') must be boolean,  \"SpecialStates.Reward\" must be decimal, \"SpecialStates.StateConditionCode\" must be defined!");
                 }
             }
+
             return errors;
         }
-
-
 
 
         private List<string> GetEnumValues(BsonDocument doc, string enumValuesFieldName, out List<string> errors)
@@ -601,66 +690,78 @@ public string GetModelHash()
             {
                 enumValues.Add(bEnumVal.AsString.ToString());
             }
+
             return enumValues;
         }
+
         private void GetEnvironmentTypes(out List<string> errors)
         {
             errors = new List<string>();
-            if(environmentPLP.Contains("GlobalVariableTypes"))
+            if (environmentPLP.Contains("GlobalVariableTypes"))
             {
-            foreach (BsonValue bVal in environmentPLP["GlobalVariableTypes"].AsBsonArray)
-            {
-                BsonDocument doc = bVal.AsBsonDocument;
-                switch (doc["Type"].ToString())
+                foreach (BsonValue bVal in environmentPLP["GlobalVariableTypes"].AsBsonArray)
                 {
-                    case ENUM_VARIABLE_TYPE_NAME:
-                        EnumVarTypePLP enu = new EnumVarTypePLP();
+                    BsonDocument doc = bVal.AsBsonDocument;
+                    switch (doc["Type"].ToString())
+                    {
+                        case ENUM_VARIABLE_TYPE_NAME:
+                            EnumVarTypePLP enu = new EnumVarTypePLP();
 
-                        enu.TypeName = doc["TypeName"].ToString();
-                        enu.Values.AddRange(GetEnumValues(doc, "EnumValues", out errors));
+                            enu.TypeName = doc["TypeName"].ToString();
+                            enu.Values.AddRange(GetEnumValues(doc, "EnumValues", out errors));
 
-                        GlobalEnumTypes.Add(enu);
-                        BaseGlobalVarTypes.Add(enu);
-                        break;
-                    case "compound":
-                        CompoundVarTypePLP comp = new CompoundVarTypePLP();
-                        comp.TypeName = doc["TypeName"].ToString();
-                        foreach (BsonValue bVariables in doc["Variables"].AsBsonArray)
-                        {
-                            CompoundVarTypePLP_Variable oVar = new CompoundVarTypePLP_Variable();
-                            BsonDocument docVar = bVariables.AsBsonDocument;
-                            oVar.Name = docVar["Name"].ToString();
-                            oVar.Type = docVar["Type"].ToString();
-                            oVar.Default = docVar.Contains("Default") ? (docVar["Default"].ToString().Equals("") ? null : docVar["Default"].ToString()) : null;
-                            if(docVar.Contains("ML_MaxPossibleValue"))
+                            GlobalEnumTypes.Add(enu);
+                            BaseGlobalVarTypes.Add(enu);
+                            break;
+                        case "compound":
+                            CompoundVarTypePLP comp = new CompoundVarTypePLP();
+                            comp.TypeName = doc["TypeName"].ToString();
+                            foreach (BsonValue bVariables in doc["Variables"].AsBsonArray)
                             {
-                                float f;
-                                string s = docVar["ML_MaxPossibleValue"].ToString();
-                                if(float.TryParse(s, out f))
+                                CompoundVarTypePLP_Variable oVar = new CompoundVarTypePLP_Variable();
+                                BsonDocument docVar = bVariables.AsBsonDocument;
+                                oVar.Name = docVar["Name"].ToString();
+                                oVar.Type = docVar["Type"].ToString();
+                                oVar.Default = docVar.Contains("Default")
+                                    ? (docVar["Default"].ToString().Equals("") ? null : docVar["Default"].ToString())
+                                    : null;
+                                if (docVar.Contains("ML_MaxPossibleValue"))
                                 {
-                                    oVar.ML_MaxPossibleValue=f;
+                                    float f;
+                                    string s = docVar["ML_MaxPossibleValue"].ToString();
+                                    if (float.TryParse(s, out f))
+                                    {
+                                        oVar.ML_MaxPossibleValue = f;
+                                    }
+                                    else
+                                    {
+                                        errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) +
+                                                   ", 'ML_MaxPossibleValue' must be a decimal number!");
+                                    }
                                 }
-                                else
+
+                                oVar.ML_IgnoreVariable = docVar.Contains("ML_IgnoreVariable")
+                                    ? docVar["ML_IgnoreVariable"].AsBoolean
+                                    : false;
+
+                                oVar.UnderlineLocalVariableType =
+                                    GetBsonStringField(docVar, "UnderlineLocalVariableType");
+
+                                if (oVar.UnderlineLocalVariableType != null && oVar.Type != ANY_VALUE_TYPE_NAME)
                                 {
-                                    errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) + ", 'ML_MaxPossibleValue' must be a decimal number!");
+                                    errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) +
+                                               ", in 'GlobalVariableTypes',  'UnderlineLocalVariableType' is defined while type '" +
+                                               oVar.Type + "' is not '" + ANY_VALUE_TYPE_NAME + "'!");
                                 }
+
+                                comp.Variables.Add(oVar);
                             }
 
-                            oVar.ML_IgnoreVariable = docVar.Contains("ML_IgnoreVariable") ? docVar["ML_IgnoreVariable"].AsBoolean : false;
-                                
-                            oVar.UnderlineLocalVariableType = GetBsonStringField(docVar, "UnderlineLocalVariableType");
-
-                            if (oVar.UnderlineLocalVariableType != null && oVar.Type != ANY_VALUE_TYPE_NAME)
-                            {
-                                errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) + ", in 'GlobalVariableTypes',  'UnderlineLocalVariableType' is defined while type '" + oVar.Type + "' is not '" + ANY_VALUE_TYPE_NAME + "'!");
-                            }
-                            comp.Variables.Add(oVar);
-                        }
-                        GlobalCompoundTypes.Add(comp);
-                        BaseGlobalVarTypes.Add(comp);
-                        break;
+                            GlobalCompoundTypes.Add(comp);
+                            BaseGlobalVarTypes.Add(comp);
+                            break;
+                    }
                 }
-            }
             }
         }
 
@@ -669,47 +770,51 @@ public string GetModelHash()
         {
             List<string> errors = new List<string>();
 
-            oVarDec.ParametersData.IncludeParametersCode = !docVar.Contains("IncludeParametersCode") ? "true" : 
-            (docVar["IncludeParametersCode"].ToString().Replace(" ","").Equals("") ? "true" : docVar["IncludeParametersCode"].ToString());
-            if(docVar.Contains("Parameters"))
+            oVarDec.ParametersData.IncludeParametersCode = !docVar.Contains("IncludeParametersCode")
+                ? "true"
+                : (docVar["IncludeParametersCode"].ToString().Replace(" ", "").Equals("")
+                    ? "true"
+                    : docVar["IncludeParametersCode"].ToString());
+            if (docVar.Contains("Parameters"))
             {
-                string[] pars = docVar["Parameters"].ToString().Replace(" ","").Split(',');
+                string[] pars = docVar["Parameters"].ToString().Replace(" ", "").Split(',');
                 foreach (BsonValue bVal in docVar["Parameters"].AsBsonArray)
                 {
                     string parStr = bVal.ToString();
                     GlobalVariableDeclarationParameter p = new GlobalVariableDeclarationParameter();
-                    EnumVarTypePLP enumP = GlobalEnumTypes.Where(x=> x.TypeName == parStr).FirstOrDefault();
-                    if(enumP != null)
+                    EnumVarTypePLP enumP = GlobalEnumTypes.Where(x => x.TypeName == parStr).FirstOrDefault();
+                    if (enumP != null)
                     {
                         p.EnumParameterType = enumP;
                         oVarDec.ParametersData.Parameters.Add(p);
                         continue;
                     }
-                    else if(parStr.Contains("(") && parStr.Contains(")"))
+                    else if (parStr.Contains("(") && parStr.Contains(")"))
                     {
-                        string[] bits = parStr.Replace("(","").Replace(")","").Split(',');
+                        string[] bits = parStr.Replace("(", "").Replace(")", "").Split(',');
                         bool hasError = false;
-                        if(bits.Length != 3)
+                        if (bits.Length != 3)
                         {
                             hasError = true;
-                            
                         }
                         else
                         {
                             int temp;
                             hasError |= !int.TryParse(bits[0], out temp);
                             p.Start = temp;
-                            
+
                             hasError |= !int.TryParse(bits[1], out temp);
                             p.Stop = temp;
 
                             hasError |= !int.TryParse(bits[2], out temp);
                             p.Step = temp;
                         }
-                        if(hasError)
+
+                        if (hasError)
                         {
-                            errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) + ", in 'GlobalVariablesDeclaration', variable '"+oVarDec.Name+
-                            "' has an invalid parameter. Valid parameters are either enum types or integer range with the following form '(Start,End,Step)' e.g. '(1,10,1)'");
+                            errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) +
+                                       ", in 'GlobalVariablesDeclaration', variable '" + oVarDec.Name +
+                                       "' has an invalid parameter. Valid parameters are either enum types or integer range with the following form '(Start,End,Step)' e.g. '(1,10,1)'");
                             continue;
                         }
                         else
@@ -720,6 +825,7 @@ public string GetModelHash()
                     }
                 }
             }
+
             return errors;
         }
 
@@ -734,44 +840,59 @@ public string GetModelHash()
 
                 oVarDec.Name = docVar["Name"].ToString();
                 oVarDec.Type = docVar["Type"].ToString();
-                oVarDec.Default = docVar.Contains("Default") ? (docVar["Default"].ToString().Equals("") ? null : docVar["Default"].ToString()) : null;
-                oVarDec.DefaultCode = docVar.Contains("DefaultCode") ? (docVar["DefaultCode"].ToString().Equals("") ? null : docVar["DefaultCode"].ToString()) : null;
+                oVarDec.Default = docVar.Contains("Default")
+                    ? (docVar["Default"].ToString().Equals("") ? null : docVar["Default"].ToString())
+                    : null;
+                oVarDec.DefaultCode = docVar.Contains("DefaultCode")
+                    ? (docVar["DefaultCode"].ToString().Equals("") ? null : docVar["DefaultCode"].ToString())
+                    : null;
                 oVarDec.IsArray = docVar.Contains("IsArray") ? docVar["IsArray"].AsBoolean : false;
-                if(docVar.Contains("ML_MaxPossibleValue"))
+                if (docVar.Contains("ML_MaxPossibleValue"))
                 {
                     float f;
                     string s = docVar["ML_MaxPossibleValue"].ToString();
-                    if(float.TryParse(s, out f))
+                    if (float.TryParse(s, out f))
                     {
-                        oVarDec.ML_MaxPossibleValue=f;
+                        oVarDec.ML_MaxPossibleValue = f;
                     }
                     else
                     {
-                        errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) + ", 'ML_MaxPossibleValue' must be a decimal number!");
+                        errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) +
+                                   ", 'ML_MaxPossibleValue' must be a decimal number!");
                     }
-                    oVarDec.ML_IgnoreVariable = docVar.Contains("ML_IgnoreVariable") ? docVar["ML_IgnoreVariable"].AsBoolean : false;
+
+                    oVarDec.ML_IgnoreVariable = docVar.Contains("ML_IgnoreVariable")
+                        ? docVar["ML_IgnoreVariable"].AsBoolean
+                        : false;
                 }
-                oVarDec.IsActionParameterValue = docVar.Contains("IsActionParameterValue") ? docVar["IsActionParameterValue"].AsBoolean : false;
+
+                oVarDec.IsActionParameterValue = docVar.Contains("IsActionParameterValue")
+                    ? docVar["IsActionParameterValue"].AsBoolean
+                    : false;
                 oVarDec.ML_IgnoreVariable = oVarDec.IsActionParameterValue ? true : oVarDec.ML_IgnoreVariable;
 
                 oVarDec.UnderlineLocalVariableType = GetBsonStringField(docVar, "UnderlineLocalVariableType");
                 errors.AddRange(GetParameterizedGlobalVarData(oVarDec, docVar));
                 if (oVarDec.UnderlineLocalVariableType != null && oVarDec.Type != ANY_VALUE_TYPE_NAME)
                 {
-                    errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) + ", in 'GlobalVariablesDeclaration',  'UnderlineLocalVariableType' is defined while type '" + oVarDec.Type + "' is not '" + ANY_VALUE_TYPE_NAME + "'!");
+                    errors.Add(GetPLPDescriptionForError("", PLP_TYPE_NAME_ENVIRONMENT) +
+                               ", in 'GlobalVariablesDeclaration',  'UnderlineLocalVariableType' is defined while type '" +
+                               oVarDec.Type + "' is not '" + ANY_VALUE_TYPE_NAME + "'!");
                 }
 
                 GlobalVariableDeclarations.Add(oVarDec);
                 if (oVarDec.DefaultCode != null && oVarDec.Default != null)
                 {
-                    errors.Add("PLP type='" + PLP_TYPE_NAME_ENVIRONMENT + "', Section='GlobalVariablesDeclaration', variable Name='" + oVarDec.Name +
-                    "', 'DefaultCode' and for 'Default' are defined, only one of them can be defined!");
+                    errors.Add("PLP type='" + PLP_TYPE_NAME_ENVIRONMENT +
+                               "', Section='GlobalVariablesDeclaration', variable Name='" + oVarDec.Name +
+                               "', 'DefaultCode' and for 'Default' are defined, only one of them can be defined!");
                 }
             }
+
             FillGlobalVariableDeclarationsSubFields();
             return errors;
         }
-  
+
         private void FillGlobalVariableDeclarationsSubFields(GlobalVariableDeclaration parentVar = null)
         {
             if (parentVar == null)
@@ -784,7 +905,7 @@ public string GetModelHash()
                         AnyValueStateVariableNames.Add(gVar.StateVariableName);
                     }
                     else if (!GenerateFilesUtils.IsPrimitiveType(gVar.Type))
-                    { 
+                    {
                         FillGlobalVariableDeclarationsSubFields(gVar);
                     }
                 }
@@ -792,18 +913,17 @@ public string GetModelHash()
             else
             {
                 var compType = GlobalCompoundTypes.Where(x => x.TypeName.Equals(parentVar.Type)).FirstOrDefault();
-                if(compType != null)
+                if (compType != null)
                 {
-                    foreach(var subField in compType.Variables)
+                    foreach (var subField in compType.Variables)
                     {
-                        
                         GlobalVariableDeclaration subVar = new GlobalVariableDeclaration();
                         subVar.Name = subField.Name;
                         subVar.Default = subField.Default;
                         subVar.StateVariableName = parentVar.StateVariableName + "." + subField.Name;
-                        subVar.Type= compType.Variables.Where(x=> x.Name.Equals(subVar.Name)).FirstOrDefault()?.Type;
+                        subVar.Type = compType.Variables.Where(x => x.Name.Equals(subVar.Name)).FirstOrDefault()?.Type;
                         parentVar.SubCompoundFeilds.Add(subVar);
-                        if(subField.Type.Equals(ANY_VALUE_TYPE_NAME))
+                        if (subField.Type.Equals(ANY_VALUE_TYPE_NAME))
                         {
                             AnyValueStateVariableNames.Add(subVar.StateVariableName);
                         }
@@ -815,7 +935,6 @@ public string GetModelHash()
                 }
                 else
                 {
-                
                 }
             }
         }
@@ -824,27 +943,32 @@ public string GetModelHash()
         {
             if (internalField == null)
             {
-                return doc.Contains(field) ? (doc[field].ToString().Replace(" ", "").Equals("") ? null
-                    : doc[field].ToString()) : null;
+                return doc.Contains(field)
+                    ? (doc[field].ToString().Replace(" ", "").Equals("")
+                        ? null
+                        : doc[field].ToString())
+                    : null;
             }
             else
             {
-                return doc.Contains(field) && doc[field].AsBsonDocument.Contains(internalField) ?
-                    (doc[field][internalField].ToString().Replace(" ", "").Equals("") ? null
-                        : doc[field][internalField].ToString()) : null;
+                return doc.Contains(field) && doc[field].AsBsonDocument.Contains(internalField)
+                    ? (doc[field][internalField].ToString().Replace(" ", "").Equals("")
+                        ? null
+                        : doc[field][internalField].ToString())
+                    : null;
             }
         }
 
         private string GetBsonStringOrStringArrayField(BsonDocument oDoc, string field, string innerField = null)
         {
-            string result="";
-            if(!oDoc.Contains(field)) return "";
-            if(innerField != null && !oDoc[field].AsBsonDocument.Contains(innerField)) return "";
-            
-            BsonDocument doc = null;
-            BsonArray bArr= null;
+            string result = "";
+            if (!oDoc.Contains(field)) return "";
+            if (innerField != null && !oDoc[field].AsBsonDocument.Contains(innerField)) return "";
 
-            if(innerField != null)
+            BsonDocument doc = null;
+            BsonArray bArr = null;
+
+            if (innerField != null)
             {
                 result = oDoc[field][innerField].IsBsonArray ? "" : oDoc[field][innerField].ToString();
                 bArr = oDoc[field][innerField].IsBsonArray ? oDoc[field][innerField].AsBsonArray : null;
@@ -853,17 +977,18 @@ public string GetModelHash()
             {
                 result = oDoc[field].IsBsonArray ? "" : oDoc[field].ToString();
                 bArr = oDoc[field].IsBsonArray ? oDoc[field].AsBsonArray : null;
-            } 
-            
-            if(bArr != null)
+            }
+
+            if (bArr != null)
             {
-                for(int i=0; i < bArr.Count; i++)
+                for (int i = 0; i < bArr.Count; i++)
                 {
                     BsonValue bVal = bArr[i];
                     result += i > 0 ? Environment.NewLine : "";
                     result += bVal.ToString();
                 }
-            } 
+            }
+
             return result;
         }
 
@@ -871,6 +996,7 @@ public string GetModelHash()
         {
             return "PLP name='" + docFile.Name + "',type = '" + docFile.Type + "'";
         }
+
         private string GetPLPDescriptionForError(string plpName, string plpType)
         {
             return "PLP name='" + plpName + "',type = '" + plpType + "'";
@@ -882,12 +1008,13 @@ public string GetModelHash()
             List<string> tempErrors = new List<string>();
 
             string plpDescription = GetPLPDescriptionForError(rosGlue);
-            
-            if(bRosGlue["ModuleResponse"].AsBsonDocument.Contains("FromStringLocalVariable"))
+
+            if (bRosGlue["ModuleResponse"].AsBsonDocument.Contains("FromStringLocalVariable"))
             {
-                rosGlue.ResponseFromStringLocalVariable = bRosGlue["ModuleResponse"]["FromStringLocalVariable"].ToString();
+                rosGlue.ResponseFromStringLocalVariable =
+                    bRosGlue["ModuleResponse"]["FromStringLocalVariable"].ToString();
             }
-            
+
             if (bRosGlue["ModuleResponse"].AsBsonDocument.Contains("ResponseRules"))
             {
                 foreach (BsonValue bVal in bRosGlue["ModuleResponse"]["ResponseRules"].AsBsonArray)
@@ -910,23 +1037,28 @@ public string GetModelHash()
                             assignment.Value = GetBsonStringField(boAssign, "Value");
                             if (assignment.GlobalVarName == null)
                             {
-                                errors.Add(plpDescription + ", 'AssignGlobalVariables' contains an item without 'VarName', it is a mandatory field!");
+                                errors.Add(plpDescription +
+                                           ", 'AssignGlobalVariables' contains an item without 'VarName', it is a mandatory field!");
                             }
+
                             if (assignment.Value == null)
                             {
-                                errors.Add(plpDescription + ", 'AssignGlobalVariables' contains an item without 'Value', it is a mandatory field!");
+                                errors.Add(plpDescription +
+                                           ", 'AssignGlobalVariables' contains an item without 'Value', it is a mandatory field!");
                             }
+
                             oResponseRule.ResponseAssignmentsToGlobalVar.Add(assignment);
                         }
                     }
 
                     rosGlue.ResponseRules.Add(oResponseRule);
-                    if(!rosGlue.EnumResponse.Contains(oResponseRule.Response))
+                    if (!rosGlue.EnumResponse.Contains(oResponseRule.Response))
                     {
                         rosGlue.EnumResponse.Add(oResponseRule.Response);
                         if (oResponseRule.Response.Contains(" ") || oResponseRule.Response.Contains("*"))
                         {
-                            errors.Add(plpDescription + ", in 'EnumResponse', response value cannot contain spaces or special characters");
+                            errors.Add(plpDescription +
+                                       ", in 'EnumResponse', response value cannot contain spaces or special characters");
                         }
                     }
                     // else
@@ -942,15 +1074,17 @@ public string GetModelHash()
                 foreach (BsonValue bVal in bRosGlue["LocalVariablesInitialization"].AsBsonArray)
                 {
                     BsonDocument docVar = bVal.AsBsonDocument;
-                    if(docVar.Contains("FromGlobalVariable"))
-                    { 
-                        LocalVariablesInitializationFromGlobalVariable oVar = new LocalVariablesInitializationFromGlobalVariable();
+                    if (docVar.Contains("FromGlobalVariable"))
+                    {
+                        LocalVariablesInitializationFromGlobalVariable oVar =
+                            new LocalVariablesInitializationFromGlobalVariable();
 
                         oVar.FromGlobalVariable = docVar["FromGlobalVariable"].ToString();
                         oVar.InputLocalVariable = docVar["InputLocalVariable"].ToString();
                         oVar.SkillName = rosGlue.Name;
-                        oVar.VariableType = GetLocalVariableTypeByGlobalVarName(oVar.FromGlobalVariable, oVar.SkillName);
-                        
+                        oVar.VariableType =
+                            GetLocalVariableTypeByGlobalVarName(oVar.FromGlobalVariable, oVar.SkillName);
+
                         rosGlue.LocalVariablesInitializationFromGlobalVariables.Add(oVar);
                         LocalVariablesListings.Add(oVar);
                     }
@@ -958,22 +1092,28 @@ public string GetModelHash()
                     {
                         GlueLocalVariablesInitialization oVar = new GlueLocalVariablesInitialization();
                         oVar.LocalVarName = GetBsonStringField(docVar, "LocalVariableName");
-                        oVar.Consistency = GetBsonStringField(docVar, "Consistency");//add for new feature
+                        oVar.Consistency = GetBsonStringField(docVar, "Consistency"); //add for new feature
 
-                        
+
                         oVar.RosTopicPath = GetBsonStringField(docVar, "RosTopicPath");
                         oVar.TopicMessageType = GetBsonStringField(docVar, "TopicMessageType");
-                        oVar.IsHeavyVariable = docVar.Contains("IsHeavyVariable") ? docVar["IsHeavyVariable"].AsBoolean : false;
+                        oVar.IsHeavyVariable = docVar.Contains("IsHeavyVariable")
+                            ? docVar["IsHeavyVariable"].AsBoolean
+                            : false;
                         //oVar.AssignmentCode = GetBsonStringField(docVar, "AssignmentCode");
-                         oVar.AssignmentCode = GetBsonStringOrStringArrayField(docVar, "AssignmentCode");//Or Wertheim changed to allow string arrays as code lines
+                        oVar.AssignmentCode =
+                            GetBsonStringOrStringArrayField(docVar,
+                                "AssignmentCode"); //Or Wertheim changed to allow string arrays as code lines
                         oVar.VariableType = GetBsonStringField(docVar, "VariableType");
                         oVar.RosParameterPath = GetBsonStringField(docVar, "RosParameter");
                         oVar.SkillName = rosGlue.Name;
                         tempErrors.Clear();
-                        oVar.FromROSServiceResponse = GetBoolFieldFromBsonNullIfNotThere(rosGlue.Name, PLPsData.PLP_TYPE_NAME_GLUE, docVar, "FromROSServiceResponse", null, out tempErrors);
+                        oVar.FromROSServiceResponse = GetBoolFieldFromBsonNullIfNotThere(rosGlue.Name,
+                            PLPsData.PLP_TYPE_NAME_GLUE, docVar, "FromROSServiceResponse", null, out tempErrors);
                         errors.AddRange(tempErrors);
                         tempErrors.Clear();
-                        oVar.Imports.AddRange(LoadImports(docVar, out tempErrors, plpDescription, "LocalVariablesInitialization"));
+                        oVar.Imports.AddRange(LoadImports(docVar, out tempErrors, plpDescription,
+                            "LocalVariablesInitialization"));
                         errors.AddRange(tempErrors);
 
                         oVar.InitialValue = GetBsonStringField(docVar, "InitialValue");
@@ -983,42 +1123,51 @@ public string GetModelHash()
 
                         if (oVar.LocalVarName == null)
                         {
-                            errors.Add(plpDescription + ", 'LocalVariablesInitialization', contains an element without a definition for 'LocalVariableName', which is a mandatory field!");
+                            errors.Add(plpDescription +
+                                       ", 'LocalVariablesInitialization', contains an element without a definition for 'LocalVariableName', which is a mandatory field!");
                         }
-                        
+
                         if (oVar.Consistency == null)
                         {
-                            errors.Add(plpDescription + ", 'LocalVariablesInitialization', contains an element without a definition for 'Consistency', which is a mandatory field!");
+                            errors.Add(plpDescription +
+                                       ", 'LocalVariablesInitialization', contains an element without a definition for 'Consistency', which is a mandatory field!");
                         }
-                        
+
 
                         if (oVar.AssignmentCode == null)
                         {
-                            errors.Add(plpDescription + ", 'LocalVariablesInitialization', contains an element without a definition for 'AssignmentCode', which is a mandatory field!");
+                            errors.Add(plpDescription +
+                                       ", 'LocalVariablesInitialization', contains an element without a definition for 'AssignmentCode', which is a mandatory field!");
                         }
 
                         if ((oVar.TopicMessageType == null) != (oVar.RosTopicPath == null))
                         {
-                            errors.Add(plpDescription + ", 'LocalVariablesInitialization', contains an element in which 'RosTopicPath' and 'TopicMessageType' are not both defined (or both not defined), it must be conssitent!");
+                            errors.Add(plpDescription +
+                                       ", 'LocalVariablesInitialization', contains an element in which 'RosTopicPath' and 'TopicMessageType' are not both defined (or both not defined), it must be conssitent!");
                         }
                     }
                 }
             }
 
-            Dictionary<string,string> localVarsNameType = new Dictionary<string,string>();
-            foreach(LocalVariableBase lv in LocalVariablesListings)
+            Dictionary<string, string> localVarsNameType = new Dictionary<string, string>();
+            foreach (LocalVariableBase lv in LocalVariablesListings)
             {
-                if(localVarsNameType.ContainsKey(lv.VariableName) && lv.VariableType != localVarsNameType[lv.VariableName])
+                if (localVarsNameType.ContainsKey(lv.VariableName) &&
+                    lv.VariableType != localVarsNameType[lv.VariableName])
                 {
-                    errors.Add(GetPLPDescriptionForError(lv.SkillName, "Glue") + ", local variable named '"+lv.VariableName+"' of type '"+lv.VariableType+"' is defined. There is a local variable with the same name and a different type defined in anoter glue file. It is not possible to have two local variables with the same name and different types!");
+                    errors.Add(GetPLPDescriptionForError(lv.SkillName, "Glue") + ", local variable named '" +
+                               lv.VariableName + "' of type '" + lv.VariableType +
+                               "' is defined. There is a local variable with the same name and a different type defined in anoter glue file. It is not possible to have two local variables with the same name and different types!");
                 }
-                localVarsNameType[lv.VariableName]= lv.VariableType;
+
+                localVarsNameType[lv.VariableName] = lv.VariableType;
             }
 
             if (!bRosGlue.Contains("ModuleActivation"))
             {
                 errors.Add(plpDescription + ", 'ModuleActivation' is not defined, but it is a mandatory field!");
             }
+
             if (bRosGlue["ModuleActivation"].AsBsonDocument.Contains("RosService"))
             {
                 BsonDocument docAct = bRosGlue["ModuleActivation"]["RosService"].AsBsonDocument;
@@ -1027,14 +1176,16 @@ public string GetModelHash()
 
                 if (rosGlue.RosServiceActivation.ServiceName == null)
                 {
-                    errors.Add(plpDescription + ", 'ModuleActivation.RosService' does not contain a definition for 'ServiceName', which is a mandatory field!");
+                    errors.Add(plpDescription +
+                               ", 'ModuleActivation.RosService' does not contain a definition for 'ServiceName', which is a mandatory field!");
                 }
 
                 rosGlue.RosServiceActivation.ServicePath = GetBsonStringField(docAct, "ServicePath");
 
                 if (rosGlue.RosServiceActivation.ServicePath == null)
                 {
-                    errors.Add(plpDescription + ", 'ModuleActivation.RosService' does not contain a definition for 'ServicePath', which is a mandatory field!");
+                    errors.Add(plpDescription +
+                               ", 'ModuleActivation.RosService' does not contain a definition for 'ServicePath', which is a mandatory field!");
                 }
 
                 if (docAct.Contains("ServiceParameters"))
@@ -1050,18 +1201,21 @@ public string GetModelHash()
                         rosGlue.RosServiceActivation.ParametersAssignments.Add(oPar);
                         if (oPar.MsgFieldName == null)
                         {
-                            errors.Add(plpDescription + ", 'ModuleActivation.RosService.ServiceParameters', contains an element without a definition for 'ServiceFieldName', which is a mandatory field!");
+                            errors.Add(plpDescription +
+                                       ", 'ModuleActivation.RosService.ServiceParameters', contains an element without a definition for 'ServiceFieldName', which is a mandatory field!");
                         }
 
                         if (oPar.MsgFieldName == null)
                         {
-                            errors.Add(plpDescription + ", 'ModuleActivation.RosService.ServiceParameters', contains an element without a definition for 'AssignServiceFieldCode', which is a mandatory field!");
+                            errors.Add(plpDescription +
+                                       ", 'ModuleActivation.RosService.ServiceParameters', contains an element without a definition for 'AssignServiceFieldCode', which is a mandatory field!");
                         }
                     }
                 }
 
                 tempErrors.Clear();
-                rosGlue.RosServiceActivation.Imports.AddRange(LoadImports(docAct, out tempErrors, plpDescription, "ModuleActivation.RosService"));
+                rosGlue.RosServiceActivation.Imports.AddRange(LoadImports(docAct, out tempErrors, plpDescription,
+                    "ModuleActivation.RosService"));
                 errors.AddRange(tempErrors);
                 /*if (docAct.Contains("ImportCode"))
                 {
@@ -1089,6 +1243,7 @@ public string GetModelHash()
                     }
                 }*/
             }
+
             //new2
             if (bRosGlue["ModuleActivation"].AsBsonDocument.Contains("RosAction"))
             {
@@ -1098,14 +1253,16 @@ public string GetModelHash()
 
                 if (rosGlue.RosActionActivation.ActionName == null)
                 {
-                    errors.Add(plpDescription + ", 'ModuleActivation.RosAction' does not contain a definition for 'ActionName', which is a mandatory field!");
+                    errors.Add(plpDescription +
+                               ", 'ModuleActivation.RosAction' does not contain a definition for 'ActionName', which is a mandatory field!");
                 }
 
                 rosGlue.RosActionActivation.ActionPath = GetBsonStringField(docAct, "ActionPath");
 
                 if (rosGlue.RosActionActivation.ActionPath == null)
                 {
-                    errors.Add(plpDescription + ", 'ModuleActivation.RosAction' does not contain a definition for 'ActionPath', which is a mandatory field!");
+                    errors.Add(plpDescription +
+                               ", 'ModuleActivation.RosAction' does not contain a definition for 'ActionPath', which is a mandatory field!");
                 }
 
                 if (docAct.Contains("ActionParameters"))
@@ -1121,25 +1278,29 @@ public string GetModelHash()
                         rosGlue.RosActionActivation.ParametersAssignments.Add(oPar);
                         if (oPar.MsgFieldName == null)
                         {
-                            errors.Add(plpDescription + ", 'ModuleActivation.RosAction.ActionParameters', contains an element without a definition for 'ActionFieldName', which is a mandatory field!");
+                            errors.Add(plpDescription +
+                                       ", 'ModuleActivation.RosAction.ActionParameters', contains an element without a definition for 'ActionFieldName', which is a mandatory field!");
                         }
 
                         if (oPar.MsgFieldName == null)
                         {
-                            errors.Add(plpDescription + ", 'ModuleActivation.RosAction.ActionParameters', contains an element without a definition for 'AssignActionFieldCode', which is a mandatory field!");
+                            errors.Add(plpDescription +
+                                       ", 'ModuleActivation.RosAction.ActionParameters', contains an element without a definition for 'AssignActionFieldCode', which is a mandatory field!");
                         }
                     }
                 }
 
                 tempErrors.Clear();
-                rosGlue.RosActionActivation.Imports.AddRange(LoadImports(docAct, out tempErrors, plpDescription, "ModuleActivation.RosAction"));
+                rosGlue.RosActionActivation.Imports.AddRange(LoadImports(docAct, out tempErrors, plpDescription,
+                    "ModuleActivation.RosAction"));
                 errors.AddRange(tempErrors);
             }
-            
+
             return rosGlue;
         }
 
-        private List<RosImport> LoadImports(BsonDocument doc, out List<string> errors, string plpDescription, string baseJsonField)
+        private List<RosImport> LoadImports(BsonDocument doc, out List<string> errors, string plpDescription,
+            string baseJsonField)
         {
             errors = new List<string>();
             List<RosImport> result = new List<RosImport>();
@@ -1163,8 +1324,10 @@ public string GetModelHash()
 
                     if (oImp.From == null && oImp.Imports.Count == 0)
                     {
-                        errors.Add(plpDescription + ", in '" + baseJsonField + ".ImportCode',  contains an element without a definition for either 'From' or 'Import', one of them must be deinfed!");
+                        errors.Add(plpDescription + ", in '" + baseJsonField +
+                                   ".ImportCode',  contains an element without a definition for either 'From' or 'Import', one of them must be deinfed!");
                     }
+
                     result.Add(oImp);
                 }
             }
@@ -1172,6 +1335,7 @@ public string GetModelHash()
 
             return result;
         }
+
         private PLP ProcessPLP(BsonDocument bPlp, out List<string> errors, PLP plp)
         {
             errors = new List<string>();
@@ -1192,44 +1356,60 @@ public string GetModelHash()
                 }
             }
 
-            if(plp.GlobalVariableModuleParameters.Count() > 0 && bPlp.Contains("PossibleParametersValue"))
+            if (plp.GlobalVariableModuleParameters.Count() > 0 && bPlp.Contains("PossibleParametersValue"))
             {
- 
-            tempErrors.Clear();
-            plp.PossibleParametersValue = LoadAssignment(bPlp["PossibleParametersValue"].AsBsonArray, plp.Name, plp.Type, out tempErrors, EStateType.ePreviousState);
-            errors.AddRange(tempErrors);               
+                tempErrors.Clear();
+                plp.PossibleParametersValue = LoadAssignment(bPlp["PossibleParametersValue"].AsBsonArray, plp.Name,
+                    plp.Type, out tempErrors, EStateType.ePreviousState);
+                errors.AddRange(tempErrors);
             }
 
             tempErrors.Clear();
-            plp.Preconditions_GlobalVariablePreconditionAssignments = !bPlp.Contains("Preconditions") || !bPlp["Preconditions"].AsBsonDocument.Contains("GlobalVariablePreconditionAssignments") ? new List<Assignment>() : LoadAssignment(bPlp["Preconditions"]["GlobalVariablePreconditionAssignments"].AsBsonArray, plp.Name, plp.Type, out tempErrors, EStateType.ePreviousState, true);
+            plp.Preconditions_GlobalVariablePreconditionAssignments =
+                !bPlp.Contains("Preconditions") || !bPlp["Preconditions"].AsBsonDocument
+                    .Contains("GlobalVariablePreconditionAssignments")
+                    ? new List<Assignment>()
+                    : LoadAssignment(bPlp["Preconditions"]["GlobalVariablePreconditionAssignments"].AsBsonArray,
+                        plp.Name, plp.Type, out tempErrors, EStateType.ePreviousState, true);
             errors.AddRange(tempErrors);
 
             tempErrors.Clear();
-            plp.Preconditions_PlannerAssistancePreconditionsAssignments = !bPlp.Contains("Preconditions") || !bPlp["Preconditions"].AsBsonDocument.Contains("PlannerAssistancePreconditionsAssignments") ? new List<Assignment>() : LoadAssignment(bPlp["Preconditions"]["PlannerAssistancePreconditionsAssignments"].AsBsonArray, plp.Name, plp.Type, out tempErrors, EStateType.ePreviousState, true);
+            plp.Preconditions_PlannerAssistancePreconditionsAssignments =
+                !bPlp.Contains("Preconditions") || !bPlp["Preconditions"].AsBsonDocument
+                    .Contains("PlannerAssistancePreconditionsAssignments")
+                    ? new List<Assignment>()
+                    : LoadAssignment(bPlp["Preconditions"]["PlannerAssistancePreconditionsAssignments"].AsBsonArray,
+                        plp.Name, plp.Type, out tempErrors, EStateType.ePreviousState, true);
             errors.AddRange(tempErrors);
 
-            List<Assignment> preconditions = new List<Assignment>(); 
+            List<Assignment> preconditions = new List<Assignment>();
             preconditions.AddRange(plp.Preconditions_PlannerAssistancePreconditionsAssignments);
             preconditions.AddRange(plp.Preconditions_GlobalVariablePreconditionAssignments);
-            
+
             foreach (Assignment oAssignment in preconditions)
             {
                 if (oAssignment.AssignmentCode.Contains("state_.") || oAssignment.AssignmentCode.Contains("state__."))
                 {
-                    errors.Add(plpDescription + ", 'GlobalVariablePreconditionAssignments' and 'PlannerAssistancePreconditionsAssignments' cannot be dependent on 'state_' or 'stat__'" +
-                    "(the state after extrinsic environment changes) or 'state__' (the next state, also after module effects), " +
-                    "see AssignmentCode='" + oAssignment.AssignmentCode + "'!");
+                    errors.Add(plpDescription +
+                               ", 'GlobalVariablePreconditionAssignments' and 'PlannerAssistancePreconditionsAssignments' cannot be dependent on 'state_' or 'stat__'" +
+                               "(the state after extrinsic environment changes) or 'state__' (the next state, also after module effects), " +
+                               "see AssignmentCode='" + oAssignment.AssignmentCode + "'!");
                 }
             }
 
             tempErrors.Clear();
             plp.Preconditions_ViolatingPreconditionPenalty = bPlp.Contains("Preconditions") &&
-                    bPlp["Preconditions"].AsBsonDocument.Contains("ViolatingPreconditionPenalty") ?
-                    GetIntFieldFromBson(plp, bPlp, "Preconditions", "ViolatingPreconditionPenalty", out tempErrors) : 0;
+                                                             bPlp["Preconditions"].AsBsonDocument
+                                                                 .Contains("ViolatingPreconditionPenalty")
+                ? GetIntFieldFromBson(plp, bPlp, "Preconditions", "ViolatingPreconditionPenalty", out tempErrors)
+                : 0;
             errors.AddRange(tempErrors);
 
             tempErrors.Clear();
-            List<Assignment> moduleExecutionTimeAssignments = !bPlp.Contains("ModuleExecutionTimeDynamicModel") ? new List<Assignment>() : LoadAssignment(bPlp["ModuleExecutionTimeDynamicModel"].AsBsonArray, plp.Name, plp.Type, out tempErrors, EStateType.ePreviousState);
+            List<Assignment> moduleExecutionTimeAssignments = !bPlp.Contains("ModuleExecutionTimeDynamicModel")
+                ? new List<Assignment>()
+                : LoadAssignment(bPlp["ModuleExecutionTimeDynamicModel"].AsBsonArray, plp.Name, plp.Type,
+                    out tempErrors, EStateType.ePreviousState);
             errors.AddRange(tempErrors);
             plp.ModuleExecutionTimeDynamicModel.AddRange(moduleExecutionTimeAssignments);
             foreach (Assignment oAssignment in plp.ModuleExecutionTimeDynamicModel)
@@ -1237,35 +1417,46 @@ public string GetModelHash()
                 if (oAssignment.AssignmentCode.Contains("state_.") || oAssignment.AssignmentCode.Contains("state__."))
                 {
                     errors.Add(plpDescription + ", 'ModuleExecutionTimeDynamicModel' cannot be dependent on 'state_' " +
-                    "(the state after extrinsic environment changes) or 'state__' (the next state, also after module effects), " +
-                    "see AssignmentCode='" + oAssignment.AssignmentCode + "'!");
+                               "(the state after extrinsic environment changes) or 'state__' (the next state, also after module effects), " +
+                               "see AssignmentCode='" + oAssignment.AssignmentCode + "'!");
                 }
             }
 
 
             if (plp.ModuleExecutionTimeDynamicModel.Count > 0)
             {
-                if (plp.ModuleExecutionTimeDynamicModel.Where(x => x.AssignmentCode.Contains(MODULE_EXECUTION_TIME_VARIABLE_NAME + "=")).ToList().Count == 0)
+                if (plp.ModuleExecutionTimeDynamicModel
+                        .Where(x => x.AssignmentCode.Contains(MODULE_EXECUTION_TIME_VARIABLE_NAME + "=")).ToList()
+                        .Count == 0)
                 {
-                    errors.Add(plpDescription + ", 'ModuleExecutionTimeDynamicModel' is defined but there is no assignment for '" + MODULE_EXECUTION_TIME_VARIABLE_NAME + "'!");
+                    errors.Add(plpDescription +
+                               ", 'ModuleExecutionTimeDynamicModel' is defined but there is no assignment for '" +
+                               MODULE_EXECUTION_TIME_VARIABLE_NAME + "'!");
                 }
             }
 
             tempErrors.Clear();
-            List<Assignment> nextStateAssignments = LoadAssignment(bPlp["DynamicModel"]["NextStateAssignments"].AsBsonArray, plp.Name, plp.Type, out tempErrors, EStateType.eNextState);
+            List<Assignment> nextStateAssignments =
+                LoadAssignment(bPlp["DynamicModel"]["NextStateAssignments"].AsBsonArray, plp.Name, plp.Type,
+                    out tempErrors, EStateType.eNextState);
             errors.AddRange(tempErrors);
             plp.DynamicModel_VariableAssignments.AddRange(nextStateAssignments);
 
-            
-            if (bPlp.Contains("StateGivenObservationModel") && bPlp["StateGivenObservationModel"].AsBsonDocument.Contains("Assignments"))
+
+            if (bPlp.Contains("StateGivenObservationModel") &&
+                bPlp["StateGivenObservationModel"].AsBsonDocument.Contains("Assignments"))
             {
                 tempErrors.Clear();
-                List<Assignment> stateGivenObservationAssignments = LoadAssignment(bPlp["StateGivenObservationModel"]["Assignments"].AsBsonArray, plp.Name, plp.Type, out tempErrors, EStateType.eNextState);
+                List<Assignment> stateGivenObservationAssignments = LoadAssignment(
+                    bPlp["StateGivenObservationModel"]["Assignments"].AsBsonArray, plp.Name, plp.Type, out tempErrors,
+                    EStateType.eNextState);
                 errors.AddRange(tempErrors);
                 plp.StateGivenObservationModel_VariableAssignments.AddRange(stateGivenObservationAssignments);
             }
+
             return plp;
         }
+
         private ModuleDocumentationFile ProcessModuleDocumentationFile(BsonDocument bPlp, out List<string> errors)
         {
             errors = new List<string>();
@@ -1273,7 +1464,9 @@ public string GetModelHash()
             ModuleDocumentationFile docFile = null;
             try
             {
-                docFile = bPlp["PlpMain"]["Type"].ToString().Equals(PLP_TYPE_NAME_PLP) ? new PLP() : bPlp["PlpMain"]["Type"].ToString().Equals(PLP_TYPE_NAME_GLUE) ? new RosGlue() : new ModuleDocumentationFile();
+                docFile = bPlp["PlpMain"]["Type"].ToString().Equals(PLP_TYPE_NAME_PLP) ? new PLP() :
+                    bPlp["PlpMain"]["Type"].ToString().Equals(PLP_TYPE_NAME_GLUE) ? new RosGlue() :
+                    new ModuleDocumentationFile();
 
                 docFile.Name = bPlp["PlpMain"]["Name"].ToString();
                 docFile.Type = bPlp["PlpMain"]["Type"].ToString();
@@ -1286,6 +1479,7 @@ public string GetModelHash()
                     case PLP_TYPE_NAME_GLUE:
                         return ProcessRosGlue(bPlp, out errors, (RosGlue)docFile);
                 }
+
                 return docFile;
             }
             catch (Exception e)
@@ -1293,11 +1487,11 @@ public string GetModelHash()
                 string plpDescription = docFile == null ? "" : GetPLPDescriptionForError(docFile) + ", ";
                 errors.Add(PLPsData.GetFatalErrorMsg(plpDescription, e));
                 return null;
-                
             }
         }
 
-        private int GetIntFieldFromBson(string fromFile, string fileType, BsonDocument bson, string firstField, string secondField, out List<string> errors)
+        private int GetIntFieldFromBson(string fromFile, string fileType, BsonDocument bson, string firstField,
+            string secondField, out List<string> errors)
         {
             errors = new List<string>();
             int result = int.MinValue;
@@ -1309,25 +1503,31 @@ public string GetModelHash()
                 errors.Add(fileDesc + ", " + errorMsg);
                 return result;
             }
+
             if (secondField != null && !bson[firstField].AsBsonDocument.Contains(secondField))
             {
                 string errorMsg = "field '" + firstField + "." + secondField + "' was expected but missing !";
                 errors.Add(fileDesc + ", " + errorMsg);
                 return result;
             }
+
             BsonValue bVal = secondField == null ? bson[firstField] : bson[firstField][secondField];
 
             if (!bVal.IsInt32)
             {
-                string errorMsg = "field '" + firstField + (secondField != null ? "." + secondField : "") + "' should contain " + PLPsData.INT_VARIABLE_TYPE_NAME + " (but contains \"" + bVal.ToString() + "\")!";
+                string errorMsg = "field '" + firstField + (secondField != null ? "." + secondField : "") +
+                                  "' should contain " + PLPsData.INT_VARIABLE_TYPE_NAME + " (but contains \"" +
+                                  bVal.ToString() + "\")!";
                 errors.Add(fileDesc + ", " + errorMsg);
                 return result;
             }
+
             return bson[firstField][secondField].AsInt32;
         }
 
 
-        private bool? GetBoolFieldFromBsonNullIfNotThere(string fromFile, string fileType, BsonDocument bson, string firstField, string secondField, out List<string> errors)
+        private bool? GetBoolFieldFromBsonNullIfNotThere(string fromFile, string fileType, BsonDocument bson,
+            string firstField, string secondField, out List<string> errors)
         {
             errors = new List<string>();
             bool? result = null;
@@ -1337,6 +1537,7 @@ public string GetModelHash()
             {
                 return null;
             }
+
             if (secondField != null && !bson[firstField].AsBsonDocument.Contains(secondField))
             {
                 return null;
@@ -1346,17 +1547,24 @@ public string GetModelHash()
 
             if (!bVal.IsBoolean)
             {
-                string errorMsg = "field '" + firstField + (secondField != null ? "." + secondField : "") + "' should contain " + PLPsData.BOOL_VARIABLE_TYPE_NAME + " (but contains \"" + bVal.ToString() + "\")!";
+                string errorMsg = "field '" + firstField + (secondField != null ? "." + secondField : "") +
+                                  "' should contain " + PLPsData.BOOL_VARIABLE_TYPE_NAME + " (but contains \"" +
+                                  bVal.ToString() + "\")!";
                 errors.Add(fileDesc + ", " + errorMsg);
                 return result;
             }
+
             return secondField == null ? bson[firstField].AsBoolean : bson[firstField][secondField].AsBoolean;
         }
-        private int GetIntFieldFromBson(PLP plp, BsonDocument bson, string firstField, string secondField, out List<string> errors)
+
+        private int GetIntFieldFromBson(PLP plp, BsonDocument bson, string firstField, string secondField,
+            out List<string> errors)
         {
             return GetIntFieldFromBson(plp.Name, plp.Type, bson, firstField, secondField, out errors);
         }
-        private List<Assignment> LoadAssignment(BsonArray bAssignmentsArray, string plpName, string plpType, out List<string> errors, EStateType assignmentLatestPointInTime, bool isCheckPrecondition = false)
+
+        private List<Assignment> LoadAssignment(BsonArray bAssignmentsArray, string plpName, string plpType,
+            out List<string> errors, EStateType assignmentLatestPointInTime, bool isCheckPrecondition = false)
         {
             List<Assignment> assignments = new List<Assignment>();
             string plpDescription = GetPLPDescriptionForError(plpName, plpType);
@@ -1366,18 +1574,21 @@ public string GetModelHash()
                 BsonDocument docAssignment = bVal.AsBsonDocument;
                 Assignment oAssignment = new Assignment();
                 oAssignment.LatestReachableState = assignmentLatestPointInTime;
-                oAssignment.AssignmentName = docAssignment.Contains("AssignmentName") ? docAssignment["AssignmentName"].ToString() : "";
+                oAssignment.AssignmentName = docAssignment.Contains("AssignmentName")
+                    ? docAssignment["AssignmentName"].ToString()
+                    : "";
 
                 //original line
                 //oAssignment.AssignmentCode = docAssignment.Contains("AssignmentCode") ? docAssignment["AssignmentCode"].ToString().Replace(" ", "") : "";
                 //oAssignment.AssignmentCode = docAssignment.Contains("AssignmentCode") ? docAssignment["AssignmentCode"].ToString() : "";//OR Wertheim removed the replace(" ","")
-                oAssignment.AssignmentCode = GetBsonStringOrStringArrayField(docAssignment, "AssignmentCode");//Or Wertheim changed to allow string arrays as code lines
+                oAssignment.AssignmentCode =
+                    GetBsonStringOrStringArrayField(docAssignment,
+                        "AssignmentCode"); //Or Wertheim changed to allow string arrays as code lines
                 string iterateVar = docAssignment.Contains("IteratePreviousStateVars") ? "IteratePreviousStateVars" :
                     docAssignment.Contains("IterateNextStateVars") ? "IterateNextStateVars" : null;
 
-                if(iterateVar != null)
+                if (iterateVar != null)
                 {
-                    
                     BsonArray bIterationsArray = docAssignment[iterateVar].AsBsonArray;
                     foreach (BsonValue bIter in bIterationsArray)
                     {
@@ -1388,80 +1599,98 @@ public string GetModelHash()
                         oIter.ItemName = GetBsonStringField(docIter, "ItemName");
                         oIter.ConditionCode = GetBsonStringField(docIter, "ConditionCode");
                         oIter.WhenConditionTrueCode = GetBsonStringField(docIter, "WhenConditionTrueCode");
-                        oIter.StateType = iterateVar.Equals("IteratePreviousStateVars") ? EStateType.ePreviousState
-                                :iterateVar.Equals("IterateNextStateVars") ? EStateType.eNextState : 
-                                iterateVar.Equals("IterateAfterExtrinsicChangesStateVars") ? EStateType.eAfterExtrinsicChangesState : EStateType.eError;
+                        oIter.StateType = iterateVar.Equals("IteratePreviousStateVars")
+                            ? EStateType.ePreviousState
+                            : iterateVar.Equals("IterateNextStateVars")
+                                ? EStateType.eNextState
+                                : iterateVar.Equals("IterateAfterExtrinsicChangesStateVars")
+                                    ? EStateType.eAfterExtrinsicChangesState
+                                    : EStateType.eError;
 
-                        if(string.IsNullOrEmpty(oIter.Type) || string.IsNullOrEmpty(oIter.ItemName))
+                        if (string.IsNullOrEmpty(oIter.Type) || string.IsNullOrEmpty(oIter.ItemName))
                         {
-                            errors.Add(plpDescription + ", '"+iterateVar+"', fields 'Type' and 'ItemName' are mandatory!");
+                            errors.Add(plpDescription + ", '" + iterateVar +
+                                       "', fields 'Type' and 'ItemName' are mandatory!");
                         }
 
-                        if(assignmentLatestPointInTime.Equals(EStateType.ePreviousState) && oIter.StateType != EStateType.ePreviousState)
+                        if (assignmentLatestPointInTime.Equals(EStateType.ePreviousState) &&
+                            oIter.StateType != EStateType.ePreviousState)
                         {
-                            errors.Add(plpDescription + ", '"+iterateVar+"', in this area you can only use 'IteratePreviousStateVars'!");
+                            errors.Add(plpDescription + ", '" + iterateVar +
+                                       "', in this area you can only use 'IteratePreviousStateVars'!");
                         }
 
-                         if(assignmentLatestPointInTime.Equals(EStateType.eAfterExtrinsicChangesState) && oIter.StateType == EStateType.eNextState)
+                        if (assignmentLatestPointInTime.Equals(EStateType.eAfterExtrinsicChangesState) &&
+                            oIter.StateType == EStateType.eNextState)
                         {
-                            errors.Add(plpDescription + ", '"+iterateVar+"', in this area you cannot iterate the next state with 'IterateNextStateVars'!");
+                            errors.Add(plpDescription + ", '" + iterateVar +
+                                       "', in this area you cannot iterate the next state with 'IterateNextStateVars'!");
                         }
 
                         oAssignment.IterateStateVariables.Add(oIter);
                     }
                 }
+
                 if (docAssignment.Contains("TempVar"))
                 {
-
-
                     BsonDocument docTemp = docAssignment["TempVar"].AsBsonDocument;
 
                     oAssignment.TempVariable.VariableName = GetBsonStringField(docTemp, "VarName");
                     if (oAssignment.TempVariable.VariableName == null)
                     {
-                        errors.Add(plpDescription + ", 'TempVar', field 'VarName' is mandatory (when 'TempVar' is defined)!");
+                        errors.Add(plpDescription +
+                                   ", 'TempVar', field 'VarName' is mandatory (when 'TempVar' is defined)!");
                     }
 
                     oAssignment.TempVariable.Type = GetBsonStringField(docTemp, "Type");
                     if (oAssignment.TempVariable.Type == null)
                     {
-                        errors.Add(plpDescription + ", 'TempVar', field 'Type' is mandatory (when 'TempVar' is defined)!");
+                        errors.Add(plpDescription +
+                                   ", 'TempVar', field 'Type' is mandatory (when 'TempVar' is defined)!");
                     }
 
-                    if (oAssignment.TempVariable.Type != ENUM_VARIABLE_TYPE_NAME && oAssignment.TempVariable.Type != "bool" && 
-                        oAssignment.TempVariable.Type != "int" && 
-                         oAssignment.TempVariable.Type != "float" &&
-                          oAssignment.TempVariable.Type != "double" &&
-                          GlobalEnumTypes.Where(x => x.TypeName.Equals(oAssignment.TempVariable.Type)).FirstOrDefault() == null)
+                    if (oAssignment.TempVariable.Type != ENUM_VARIABLE_TYPE_NAME &&
+                        oAssignment.TempVariable.Type != "bool" &&
+                        oAssignment.TempVariable.Type != "int" &&
+                        oAssignment.TempVariable.Type != "float" &&
+                        oAssignment.TempVariable.Type != "double" &&
+                        GlobalEnumTypes.Where(x => x.TypeName.Equals(oAssignment.TempVariable.Type)).FirstOrDefault() ==
+                        null)
                     {
-                        errors.Add(plpDescription + ", 'TempVar', valid values for field 'Type' are: 'enum','int', 'float', 'double' or 'bool'!");
+                        errors.Add(plpDescription +
+                                   ", 'TempVar', valid values for field 'Type' are: 'enum','int', 'float', 'double' or 'bool'!");
                     }
+
                     if (oAssignment.TempVariable.Type == ENUM_VARIABLE_TYPE_NAME)
                     {
                         oAssignment.TempVariable.EnumName = GetBsonStringField(docTemp, "EnumName");
                         if (oAssignment.TempVariable.EnumName == null)
                         {
-                            errors.Add(plpDescription + ", 'TempVar', field 'EnumName' is mandatory (when 'Type' is 'enum')!");
+                            errors.Add(plpDescription +
+                                       ", 'TempVar', field 'EnumName' is mandatory (when 'Type' is 'enum')!");
                         }
 
                         List<string> enumErrors;
-                        oAssignment.TempVariable.EnumValues.AddRange(GetEnumValues(docTemp, "EnumValues", out enumErrors));
+                        oAssignment.TempVariable.EnumValues.AddRange(GetEnumValues(docTemp, "EnumValues",
+                            out enumErrors));
                         errors.AddRange(enumErrors);
                     }
-
                 }
+
                 assignments.Add(oAssignment);
             }
+
             return assignments;
         }
     }
 
-    public class EnumVarTypePLP:BaseGlobalVarType
+    public class EnumVarTypePLP : BaseGlobalVarType
     {
         public bool IsCompundType
         {
             get => false;
         }
+
         public List<string> Values;
 
         public EnumVarTypePLP()
@@ -1469,17 +1698,20 @@ public string GetModelHash()
             Values = new List<string>();
         }
     }
+
     public class BaseGlobalVarType
     {
         public string TypeName;
         public bool IsCompundType;
     }
-    public class CompoundVarTypePLP:BaseGlobalVarType
+
+    public class CompoundVarTypePLP : BaseGlobalVarType
     {
         public bool IsCompundType
         {
             get => true;
         }
+
         public List<CompoundVarTypePLP_Variable> Variables;
 
         public CompoundVarTypePLP()
@@ -1504,6 +1736,7 @@ public string GetModelHash()
         public string FieldName;
         public string FieldType;
     }
+
     public class CompoundVarTypePLP_Variable
     {
         public string Name;
@@ -1518,7 +1751,7 @@ public string GetModelHash()
 
         public CompoundVarTypePLP_Variable()
         {
-            ML_IgnoreVariable=false;
+            ML_IgnoreVariable = false;
         }
     }
 
@@ -1537,41 +1770,45 @@ public string GetModelHash()
         public List<GlobalVariableDeclaration> SubCompoundFeilds = new List<GlobalVariableDeclaration>();
         public string StateVariableName;
         public string UnderlineLocalVariableType;
-        public ParameterizedGlobalVariableData ParametersData = new ParameterizedGlobalVariableData(); 
+        public ParameterizedGlobalVariableData ParametersData = new ParameterizedGlobalVariableData();
+
         public GlobalVariableDeclaration()
         {
-            ML_IgnoreVariable=false;
+            ML_IgnoreVariable = false;
         }
+
         public string GetVariableDefinition()
         {
-            if(IsArray)
+            if (IsArray)
             {
-
             }
-            if(this.ParametersData.Parameters.Count() > 0)
+
+            if (this.ParametersData.Parameters.Count() > 0)
             {
-                return "std::map<tuple<" + string.Join(",", this.ParametersData.Parameters.Select(x=> x.EnumParameterType == null ? "int" : x.EnumParameterType.TypeName).ToList()) + ">,"+this.Type+"> " + this.Name + ";";
+                return "std::map<tuple<" +
+                       string.Join(",",
+                           this.ParametersData.Parameters.Select(x =>
+                               x.EnumParameterType == null ? "int" : x.EnumParameterType.TypeName).ToList()) + ">," +
+                       this.Type + "> " + this.Name + ";";
             }
             else
             {
-                return (IsArray ? "vector<" : "") + this.Type +(IsArray?">":"")+ " " + this.Name + ";";
-            } 
+                return (IsArray ? "vector<" : "") + this.Type + (IsArray ? ">" : "") + " " + this.Name + ";";
+            }
         }
     }
 
     public class ParameterizedGlobalVariableData
     {
         public string IncludeParametersCode;
-        public List<GlobalVariableDeclarationParameter> Parameters = new List<GlobalVariableDeclarationParameter>(); 
-
-        
+        public List<GlobalVariableDeclarationParameter> Parameters = new List<GlobalVariableDeclarationParameter>();
     }
 
     public class GlobalVariableDeclarationParameter
     {
-        public int Start=0;
-        public int Stop=0;
-        public int Step=0;
+        public int Start = 0;
+        public int Stop = 0;
+        public int Step = 0;
         public EnumVarTypePLP EnumParameterType = null;
     }
 
@@ -1580,7 +1817,6 @@ public string GetModelHash()
         public string Name;
         public string Type;
         public string InitCode;
-
     }
 
     public class SpecialState
@@ -1593,7 +1829,13 @@ public string GetModelHash()
         public bool IsOneTimeReward;
     }
 
-    public enum DistributionType { Normal, Discrete, Uniform };
+    public enum DistributionType
+    {
+        Normal,
+        Discrete,
+        Uniform
+    };
+
     public class DistributionSample
     {
         public string C_VariableName;
