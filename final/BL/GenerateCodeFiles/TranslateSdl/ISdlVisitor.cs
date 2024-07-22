@@ -9,71 +9,54 @@ public interface ISdlVisitor
     void Visit(CodeAssignment codeAssignment);
     void Visit(Preconditions preconditions);
     void Visit(DynamicModel dynamicModel);
-    void Visit(ModuleResponse moduleResponse); 
-    void Visit(ResponseRule responseRule); 
+    void Visit(ModuleResponse moduleResponse);
+    void Visit(ResponseRule responseRule);
     void Visit(ModuleActivation moduleActivation);
     void Visit(RosService rosService);
     void Visit(RosAction rosAction);
     void Visit(LocalVariableInitialization localVariableInitialization);
-    
-    
-    // for the ElfFile
-    
     void Visit(EnvironmentGeneral environmentGeneral);
     void Visit(GlobalVariableType globalVariableType);
     void Visit(GlobalVariableDeclaration globalVariableDeclaration);
     void Visit(SpecialStateCode specialStateCode);
-  
-    
 }
-
 
 public class SdFileToJsonVisitor : ISdlVisitor
 {
     private SdFile sdFile = new SdFile();
     private AmFile amFile = new AmFile();
 
-    public void Visit(EnvironmentGeneral environmentGeneral)
-    {
-        
-    }
-    public void Visit(GlobalVariableType globalVariableType)
-    {
-        
-    }
-    public void Visit(GlobalVariableDeclaration globalVariableDeclaration)
-    {
-        
-    }
-    
-    public void Visit(SpecialStateCode specialStateCode)
-    {
-        
-    }
-    public void Visit(ModuleResponse moduleResponse)
-    {
-        amFile.ModuleResponse = moduleResponse;
-    }
+    public void Visit(EnvironmentGeneral environmentGeneral) {}
+
+    public void Visit(GlobalVariableType globalVariableType) {}
+
+    public void Visit(GlobalVariableDeclaration globalVariableDeclaration) {}
+
+    public void Visit(SpecialStateCode specialStateCode) {}
+
+    public void Visit(ModuleResponse moduleResponse) { amFile.ModuleResponse = moduleResponse; }
+
     public void Visit(ResponseRule responseRule)
     {
         if (amFile.ModuleResponse == null)
         {
             amFile.ModuleResponse = new ModuleResponse();
         }
+
         var responseRules = amFile.ModuleResponse.ResponseRules?.ToList() ?? new List<ResponseRule>();
         responseRules.Add(responseRule);
         amFile.ModuleResponse.ResponseRules = responseRules.ToArray();
     }
-    public void Visit(ModuleActivation moduleActivation)
-    {
-        amFile.ModuleActivation = moduleActivation;
-    }
+
+    public void Visit(ModuleActivation moduleActivation) { amFile.ModuleActivation = moduleActivation; }
+
     public void Visit(RosService rosService)
     {
         if (amFile.ModuleActivation == null)
         {
             amFile.ModuleActivation = new ModuleActivation();
         }
+
         amFile.ModuleActivation.RosService = rosService;
     }
 
@@ -83,6 +66,7 @@ public class SdFileToJsonVisitor : ISdlVisitor
         {
             amFile.ModuleActivation = new ModuleActivation();
         }
+
         amFile.ModuleActivation.RosAction = rosAction;
     }
 
@@ -92,6 +76,7 @@ public class SdFileToJsonVisitor : ISdlVisitor
         {
             amFile.LocalVariablesInitialization = new List<LocalVariableInitialization>();
         }
+
         amFile.LocalVariablesInitialization.Add(localVariableInitialization);
     }
 
@@ -106,6 +91,7 @@ public class SdFileToJsonVisitor : ISdlVisitor
         {
             sdFile.GlobalVariableModuleParameters = new List<GlobalVariableModuleParameter>().ToArray();
         }
+
         var parameters = sdFile.GlobalVariableModuleParameters.ToList();
         parameters.Add(parameter);
         sdFile.GlobalVariableModuleParameters = parameters.ToArray();
@@ -125,18 +111,9 @@ public class SdFileToJsonVisitor : ISdlVisitor
         }
     }
 
-    public void Visit(Preconditions preconditions)
-    {
-        sdFile.Preconditions = preconditions;
-    }
+    public void Visit(Preconditions preconditions) { sdFile.Preconditions = preconditions; }
 
-    public void Visit(DynamicModel dynamicModel)
-    {
-        sdFile.DynamicModel = dynamicModel;
-    }
+    public void Visit(DynamicModel dynamicModel) { sdFile.DynamicModel = dynamicModel; }
 
-    public SdFile GetSdFile()
-    {
-        return sdFile;
-    }
+    public SdFile GetSdFile() { return sdFile; }
 }
