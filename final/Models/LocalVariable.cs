@@ -8,18 +8,15 @@ namespace WebApiCSharp.Models
     {
         [BsonElement("_id")]
         public BsonObjectId Id{get;set;}
-
-
+        
         [BsonElement("VarName")]
         public string Name{get;set;}
-
 
         [BsonElement("Value")]
         public object Value{get;set;}
 
         [BsonElement("Module")]
         public string Module{get;set;} 
- 
 
     }
 }
