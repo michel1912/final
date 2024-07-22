@@ -9,7 +9,6 @@ public class LocalVariableDB
     [BsonElement("_id")]
     public BsonObjectId Id{get;set;}
 
-
     [BsonElement("VarName")]
     public string Name{get;set;}
     
