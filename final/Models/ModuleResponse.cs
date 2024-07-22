@@ -9,11 +9,7 @@ namespace WebApiCSharp.Models
     {
         [BsonElement("_id")]
         public BsonObjectId Id{get;set;}
-
-
         public int ActionSequenceId{get;set;}
-
-
         public string Module{get;set;}
         public string ModuleResponseText{get;set;}
         public DateTime? StartTime{get;set;}
