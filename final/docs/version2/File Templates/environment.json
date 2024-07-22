@@ -1,0 +1,9 @@
+{
+    "PlpMain": { },
+    "EnvironmentGeneral": { },
+    "GlobalVariableTypes": [ ],
+    "GlobalVariablesDeclaration": [ ],
+    "InitialBeliefStateAssignments": [ ],
+    "SpecialStates": [ ],
+    "ExtrinsicChangesDynamicModel": [ ]
+}

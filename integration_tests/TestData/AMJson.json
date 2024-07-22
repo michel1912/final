@@ -1,0 +1,114 @@
+{
+  "PlpMain": {
+    "Project": "example",
+    "Name": "navigate",
+    "Type": "Glue"
+  },
+  "GlueFramework": "ROS",
+  "ModuleResponse": {
+    "ResponseRules": [
+      {
+        "Response": "eSuccess",
+        "ConditionCodeWithLocalVariables": "skillSuccess and goal_reached"
+      },
+      {
+        "Response": "eFailed",
+        "ConditionCodeWithLocalVariables": "True"
+      }
+    ]
+  },
+  "ModuleActivation": {
+    "RosService": {
+      "ImportCode": [
+        {
+          "From": "geometry_msgs.msg",
+          "Import": [
+            "Point"
+          ]
+        },
+        {
+          "From": "rclpy.executors",
+          "Import": [
+            "MultiThreadedExecutor"
+          ]
+        },
+        {
+          "From": "rclpy.node",
+          "Import": [
+            "Node"
+          ]
+        },
+        {
+          "From": "nav2_msgs.action",
+          "Import": [
+            "NavigateToPose"
+          ]
+        },
+        {
+          "From": "interfaces_robot.srv",
+          "Import": [
+            "NavigateToCoordinates"
+          ]
+        }
+      ],
+      "ServiceName": "NavigateToCoordinates",
+      "ServicePath": "/navigate_to_coordinates",
+      "ServiceParameters": [
+        {
+          "ServiceFieldName": "pose",
+          "AssignServiceFieldCode": "Point(x=nav_to_x, y=nav_to_y, z=nav_to_z)"
+        }
+      ]
+    }
+  },
+  "LocalVariablesInitialization": [
+    {
+      "LocalVariableName": "skillSuccess",
+      "VariableType": "bool",
+      "AssignmentCode": [
+        "skillSuccess = __input.success"
+      ],
+      "ImportCode": [
+        {
+          "From": "std_msgs.msg",
+          "Import": [
+            "Bool"
+          ]
+        }
+      ]
+    },
+    {
+      "LocalVariableName": "goal_reached",
+      "VariableType": "bool",
+      "RosTopicPath": "/rosout",
+      "TopicMessageType": "Log",
+      "AssignmentCode": [
+        "if goal_reached == True:",
+        "    return True",
+        "else:",
+        "    return __input.msg.find('Goal reached') > -1"
+      ],
+      "ImportCode": [
+        {
+          "From": "rcl_interfaces.msg",
+          "Import": [
+            "Log"
+          ]
+        }
+      ],
+      "InitialValue": "False"
+    },
+    {
+      "InputLocalVariable": "nav_to_x",
+      "FromGlobalVariable": "x"
+    },
+    {
+      "InputLocalVariable": "nav_to_y",
+      "FromGlobalVariable": "y"
+    },
+    {
+      "InputLocalVariable": "nav_to_z",
+      "FromGlobalVariable": "z"
+    }
+  ]
+}

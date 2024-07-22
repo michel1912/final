@@ -1,0 +1,12 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a1445fec_002Ddc57_002D4c31_002Dae5f_002D265098b9ecd4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Tests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Or&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;NUnit3x::45E24BFF-2C57-4FB7-834C-DA5E13E3C5AE::net6.0::unit_tests.Ros2MiddlewareFileTemplateTests&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::9089F384-4359-4E59-A031-D6BB2FC23EC8::net6.0::integration_tests.GenerateRosMiddlewareTests&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
+    &lt;Project Location="/home/natalie/AOS/AOS_ROS2/unit_tests" Presentation="&amp;lt;UnitTests&amp;gt;\&amp;lt;unit_tests&amp;gt;" /&gt;
+    &lt;Project Location="/home/michel/Downloads/aos_ros2/final" Presentation="&amp;lt;UnitTests&amp;gt;" /&gt;
+    &lt;Project Location="/home/michel/AOS/check/final" Presentation="&amp;lt;UnitTests&amp;gt;" /&gt;
+  &lt;/Or&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

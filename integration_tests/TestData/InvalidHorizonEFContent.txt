@@ -1,0 +1,3 @@
+project: example
+horizon: ten
+discount: 0.97

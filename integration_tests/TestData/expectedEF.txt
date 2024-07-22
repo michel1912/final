@@ -1,0 +1,138 @@
+{
+  "PlpMain": {
+    "Project": "example",
+    "Name": "environment",
+    "Type": "Environment"
+  },
+  "EnvironmentGeneral": {
+    "Horizon": 10,
+    "Discount": 0.97
+  },
+  "GlobalVariableTypes": [
+    {
+      "TypeName": "tLocation",
+      "Type": "compound",
+      "Variables": [
+        {
+          "Name": "x",
+          "Type": "float",
+          "Default": "0.0",
+          "ML_IgnoreVariable": false
+        },
+        {
+          "Name": "y",
+          "Type": "float",
+          "Default": "0.0",
+          "ML_IgnoreVariable": false
+        },
+        {
+          "Name": "z",
+          "Type": "float",
+          "Default": "0.0",
+          "ML_IgnoreVariable": false
+        },
+        {
+          "Name": "discrete",
+          "Type": "int",
+          "Default": "-1",
+          "ML_IgnoreVariable": false
+        }
+      ]
+    },
+    {
+      "TypeName": "tVisitedLocation",
+      "Type": "compound",
+      "Variables": [
+        {
+          "Name": "discrete",
+          "Type": "int",
+          "Default": "1",
+          "ML_IgnoreVariable": false
+        },
+        {
+          "Name": "visited",
+          "Type": "bool",
+          "Default": "false",
+          "ML_IgnoreVariable": false
+        }
+      ]
+    }
+  ],
+  "GlobalVariablesDeclaration": [
+    {
+      "Name": "robotLocation",
+      "Type": "tLocation",
+      "DefaultCode": "state.robotLocation.discrete = -1",
+      "IsArray": false,
+      "IsActionParameterValue": false,
+      "ML_IgnoreVariable": false
+    },
+    {
+      "Name": "v1",
+      "Type": "tVisitedLocation",
+      "DefaultCode": "state.v1.discrete = 1",
+      "IsArray": false,
+      "IsActionParameterValue": false,
+      "ML_IgnoreVariable": false
+    },
+    {
+      "Name": "v2",
+      "Type": "tVisitedLocation",
+      "DefaultCode": "state.v2.discrete = 2",
+      "IsArray": false,
+      "IsActionParameterValue": false,
+      "ML_IgnoreVariable": false
+    },
+    {
+      "Name": "v3",
+      "Type": "tVisitedLocation",
+      "DefaultCode": "state.v3.discrete = 3",
+      "IsArray": false,
+      "IsActionParameterValue": false,
+      "ML_IgnoreVariable": false
+    }
+  ],
+  "InitialBeliefStateAssignments": [
+    {
+      "AssignmentCode": [
+        "state.robotLocation.discrete = AOS.Bernoulli(0.5) ? 1 : (AOS.Bernoulli(0.2) ? 2 : 3);"
+      ]
+    }
+  ],
+  "SpecialStates": [
+    {
+      "StateFunctionCode": [
+        {
+          "AssignmentCode": [
+            "if (!state.v1.visited && state.v2.visited)",
+            "{",
+            "__reward=-50;",
+            "__stopEvaluatingState =true;",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "StateFunctionCode": [
+        {
+          "AssignmentCode": [
+            "if (state.v1.visited && state.v2.visited && state.v3.visited)",
+            "{",
+            "__reward =7000;",
+            "__isGoalState =true;",
+            "}"
+          ]
+        }
+      ]
+    }
+  ],
+  "ExtrinsicChangesDynamicModel": [
+    {
+      "AssignmentCode": [
+        "if (AOS.Bernoulli(0.05)) state_.robotLocation.discrete = -1;",
+        ""
+      ]
+    }
+  ]
+}

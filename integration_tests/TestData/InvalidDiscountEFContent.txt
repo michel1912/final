@@ -1,0 +1,3 @@
+project: example
+horizon: 10
+discount: ninety-seven
