@@ -15,8 +15,6 @@ namespace WebApiCSharp.Services
         public static IMongoCollection<LogMessage> LogsCollectionObj = dbAOS.GetCollection<LogMessage>(Globals.LOGS_COLLECTION_NAME);
         public static IMongoCollection<LogMessagePost> LogsCollectionPostObj = dbAOS.GetCollection<LogMessagePost>(Globals.LOGS_COLLECTION_NAME);
 
-        
-
         public static List<LogMessage> Get()
         {
             try
@@ -27,7 +25,6 @@ namespace WebApiCSharp.Services
                 foreach (var doc in results)
                 {
                     LogMessage item = new LogMessage();
-
                     item.ID =  GetElemenetObjectIDStr(doc);
                     item.LogLevel = GetElemenetInt(doc,"LogLevel");
                     item.LogLevelDesc = GetElemenetStr(doc,"LogLevelDesc");
