@@ -15,17 +15,18 @@ namespace WebApiCSharp.GenerateCodeFiles
         public const string ROS_MIDDLEWARE_PACKAGE_NAME = "aos_ros_middleware_auto";
 
         private static Configuration conf;
+
         static GenerateRosMiddleware()
         {
             conf = ConfigurationService.Get();
         }
-
-
-
+        
         public GenerateRosMiddleware(PLPsData data, InitializeProject initProj)
         {
-            Console.WriteLine(initProj.RosTarget.RosDistribution + "          GJHSDFJGHDFJHJGaaaaaaaaaaa");
-            if(String.IsNullOrEmpty(initProj.RosTarget.WorkspaceDirectortyPath)) return;
+            Console.WriteLine(initProj.RosTarget.RosDistribution);
+            
+            if (String.IsNullOrEmpty(initProj.RosTarget.WorkspaceDirectortyPath)) return;
+            
             string rosWorkspaceSrcDirPath = GenerateFilesUtils.AppendPath(initProj.RosTarget.WorkspaceDirectortyPath, "src");
             string rosMiddlewareDirectory = GenerateFilesUtils.AppendPath(rosWorkspaceSrcDirPath, ROS_MIDDLEWARE_PACKAGE_NAME);
 
@@ -33,25 +34,20 @@ namespace WebApiCSharp.GenerateCodeFiles
 
             try
             {
-            GenerateFilesUtils.RunApplicationUntilEnd("catkin_create_pkg", rosWorkspaceSrcDirPath, ROS_MIDDLEWARE_PACKAGE_NAME + " std_msgs rospy roscpp");
+                GenerateFilesUtils.RunApplicationUntilEnd("catkin_create_pkg", rosWorkspaceSrcDirPath, ROS_MIDDLEWARE_PACKAGE_NAME + " std_msgs rospy roscpp");
             }
-            catch(Exception e)
+            
+            catch (Exception e)
             {
-                throw new Exception("ROS workspace path not found: '"+rosWorkspaceSrcDirPath+"'");
+                throw new Exception("ROS workspace path not found: '" + rosWorkspaceSrcDirPath + "'");
             }
+
             GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/CMakeLists.txt", RosMiddlewareFileTemplate.GetCMakeListsFile());
-
             GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/package.xml", RosMiddlewareFileTemplate.GetPackageFile(initProj));
-
             Directory.CreateDirectory(rosMiddlewareDirectory + "/scripts");
-            GenerateFilesUtils.WriteTextFile(rosMiddlewareDirectory + "/scripts/" + ROS_MIDDLEWARE_PACKAGE_NAME + "_node.py", RosMiddlewareFileTemplate.GetAosRosMiddlewareNodeFile(data, initProj), true);
-
-
-
-
-
+            GenerateFilesUtils.WriteTextFile(
+                rosMiddlewareDirectory + "/scripts/" + ROS_MIDDLEWARE_PACKAGE_NAME + "_node.py",
+                RosMiddlewareFileTemplate.GetAosRosMiddlewareNodeFile(data, initProj), true);
         }
-
-
     }
 }
