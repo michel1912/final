@@ -1,7 +1,8 @@
 User Instructions for AOS System :
 System Requirements:
+
 ● Ubuntu 20.04
-●ROS2 Galactic
+● ROS2 Galactic
 
 AOS System Installation Guide
 Installation Steps:
