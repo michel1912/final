@@ -75,3 +75,7 @@ https://github.com/michel1912/ros2_Workspace
 updated to be compatible with ROS 2. This includes checking and modifying
 configurations as necessary to support the new ROS 2 environment.
 5. MODIFY THE AOS-SOLVER:
+  add these lines in the AOS-SOLVER (update for the new feature):
+  do this update in the class of : mongoDB_Bridge.cpp
+  ![Screenshot from 2024-07-22 19-41-23](https://github.com/user-attachments/assets/fa30db71-dc2c-4763-b5c6-9cf70e7c285e)
+
