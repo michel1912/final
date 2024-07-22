@@ -18,14 +18,12 @@ namespace WebApiCSharp.Controllers
     [Route("[controller]")]
     public class SimulatedStateController : ControllerBase
     { 
-
         private readonly ILogger<SimulatedStateController> _logger;
 
         public SimulatedStateController(ILogger<SimulatedStateController> logger)
         {
             _logger = logger;
         }
-
 
         [HttpGet] 
         public dynamic Get()
