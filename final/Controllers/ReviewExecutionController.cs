@@ -14,7 +14,6 @@ namespace WebApiCSharp.Controllers
     [Route("[controller]")]
     public class ReviewExecutionController : ControllerBase
     {
-         
         private readonly ILogger<ReviewExecutionController> _logger;
 
         public ReviewExecutionController(ILogger<ReviewExecutionController> logger)
@@ -22,14 +21,10 @@ namespace WebApiCSharp.Controllers
             _logger = logger;
         }
 
-
         [HttpGet]
         public List<SolverAction> GetAll()
         {
             return SolverActionsService.Get();
-        }
-        
-
-        
+        }        
     }
 }
