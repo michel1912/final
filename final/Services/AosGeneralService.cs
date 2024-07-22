@@ -22,9 +22,6 @@ namespace WebApiCSharp.Services
                 dbAOS.GetCollection<BsonDocument>(Globals.MODULE_RESPONSES_COLLECTION_NAME).DeleteMany(doc => true);
                 dbAOS.GetCollection<BsonDocument>(Globals.LOCAL_VARIABLES_COLLECTION_NAME).DeleteMany(doc => true);
                 dbAOS.GetCollection<BsonDocument>(Globals.LOCAL_VARIABLES_COLLECTION_NAME_DB).DeleteMany(doc => true);
-//add for new feature
-
-                //new collection update to add here localvariablesDb
                 dbAOS.GetCollection<BsonDocument>(Globals.GLOBAL_VARIABLES_ASSIGNMENTS_COLLECTION_NAME).DeleteMany(doc => true);
                 dbAOS.GetCollection<BsonDocument>(Globals.LOGS_COLLECTION_NAME).DeleteMany(doc => true); 
                 dbAOS.GetCollection<object>(Globals.BELIEF_STATES_COLLECTION_NAME).DeleteMany("{\"ActionSequnceId\": { $ne: -1 } }");
@@ -34,6 +31,5 @@ namespace WebApiCSharp.Services
                 throw ex;
             }
         }
- 
     }
 }
