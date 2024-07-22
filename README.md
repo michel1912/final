@@ -79,3 +79,7 @@ configurations as necessary to support the new ROS 2 environment.
   do this update in the class of : mongoDB_Bridge.cpp
   ![Screenshot from 2024-07-22 19-41-23](https://github.com/user-attachments/assets/fa30db71-dc2c-4763-b5c6-9cf70e7c285e)
 
+and do this update (add for the new feature) in this class : mongoDB_Bridge.h
+![Screenshot from 2024-07-22 19-41-29](https://github.com/user-attachments/assets/8f075bfb-751a-4da0-bbf9-eca3deb34b1c)
+
+these updates for the new feature to save in DB if we have consistency of the localvariable equal to DB 
