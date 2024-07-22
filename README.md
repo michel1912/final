@@ -50,6 +50,10 @@ source ~/galactic_ws=NAME_OF_YOUR_WORKSPACE/install/local_setup.bash
 source /opt/ros/galactic/setup.bash
 source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
 
+it should be like this in .bashrc:
+![Screenshot from 2024-07-22 19-33-20](https://github.com/user-attachments/assets/dfa6bf76-6ff7-4a62-b05b-f868c901910e)
+
+
 
 Updating the AOS System
 To update your AOS system and integrate ROS 2, follow these steps:
