@@ -64,6 +64,8 @@ new repository.
 3. Update the AM File:
 - Replace the old AM file with the new one included in the updated AOS
 system. The AM file defines the actions and behaviors of the AOS system.
+you can install the updated AM from this Github :
+https://github.com/michel1912/ros2_Workspace
 4. Update Services:
 - Ensure that all services and dependencies in your AOS system are
 updated to be compatible with ROS 2. This includes checking and modifying
