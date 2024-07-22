@@ -79,47 +79,34 @@ namespace WebApiCSharp.Services
             }
         }
 
-        private static string GetJsonForActionSequnceId(int actionSequenceId, List<BsonDocument> actions, 
-            List<ModuleResponse> responses, List<BsonDocument> belief, List<SolverAction> solverActions)
+        private static string GetJsonForActionSequnceId(int actionSequenceId, List<BsonDocument> actions, List<ModuleResponse> responses, List<BsonDocument> belief, List<SolverAction> solverActions)
         { 
             if(actions.Count < actionSequenceId)return null;
+            
             if(actions.Where<BsonDocument>(x=> x["ActionSequenceId"] == actionSequenceId).LastOrDefault()==null)return null;
-            //string actionJson = actions[actionSequenceId - 1].ToJson();
+            
             string actionJson = actions.Where<BsonDocument>(x=> x["ActionSequenceId"] == actionSequenceId).LastOrDefault().ToJson();
             string beliefJson = belief.Where<BsonDocument>(x=> x["ActionSequnceId"] == actionSequenceId).LastOrDefault().ToJson();
-
-            //string beliefJson = (belief.Count < actionSequenceId) ? "{\"BeliefeState\":[]}" : belief[actionSequenceId - 1].ToJson();
             List<ModuleResponse> actionResponses = responses.Where(x => x.ActionSequenceId.Equals(actionSequenceId)).ToList();
             ModuleResponse actionResponse = actionResponses.FirstOrDefault();
             bool middlewareRecievedAction = actionResponse != null;
             int actionId = int.Parse(GetJsonFirstFieldValue("ActionID", actionJson));
             string jsonRes = "{\"ActionSequenceId\" : " + actionSequenceId;
-
             SolverAction solverAction = solverActions.Where(x => x.ActionID.Equals(actionId)).FirstOrDefault();
-
             jsonRes += ", \"ActionDetails\":" + solverAction.ToJson();
-
-             
             jsonRes += ", \"SolverSentActionTime\" : \""+ DateTimeToString(ISO_ToDateTime(GetJsonFirstFieldValue("RequestCreateTime",actionJson)).Value)+"\"";
- 
-            jsonRes += ", \"ModuleExecutionStartTime\" : \""+
-                (middlewareRecievedAction ? DateTimeToString(actionResponse.StartTime.Value) : "null")+"\"";
-
-            jsonRes += ", \"ModuleExecutionEndTime\" : \""+
-                (middlewareRecievedAction ? DateTimeToString(actionResponse.EndTime.Value) : "null")+"\"";
+            jsonRes += ", \"ModuleExecutionStartTime\" : \""+(middlewareRecievedAction ? DateTimeToString(actionResponse.StartTime.Value) : "null")+"\"";
+            jsonRes += ", \"ModuleExecutionEndTime\" : \""+(middlewareRecievedAction ? DateTimeToString(actionResponse.EndTime.Value) : "null")+"\"";
 
             jsonRes += ", \"ModuleResponseText\" : \""+
                 (middlewareRecievedAction ? 
                 ((actionResponses.Count > 1) ? "Fatal Error: more than one response received from module!!!" : actionResponse.ModuleResponseText) : "null")+"\"";
 
-
             int ind = beliefJson.IndexOf("\"BeliefeState") + ("\"BeliefeState\":").Length;
             beliefJson = beliefJson.Substring(ind, beliefJson.Length - ind - 1);
             string deslimiter = beliefJson.Replace(" ", "").StartsWith(":") ? "" : ":";
             jsonRes += ", \"BeliefStatesAfterExecution\" " + deslimiter + beliefJson;
-
             jsonRes += "}";
-
 
             return jsonRes;
         }
