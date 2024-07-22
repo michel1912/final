@@ -14,7 +14,6 @@ namespace WebApiCSharp.Services
         private static Solver GetSolverFromBson(BsonDocument doc)
         {
             Solver item = new Solver();
-
             item.SolverId = doc["SolverId"].AsInt32;
             item.ProjectName = doc["ProjectName"].ToString();
             item.ServerGeneratedSolverDateTime = doc["ServerGeneratedSolverDateTime"].IsBsonNull ? null : (DateTime?)doc["ServerGeneratedSolverDateTime"].ToUniversalTime();
@@ -23,10 +22,10 @@ namespace WebApiCSharp.Services
             item.ServerShutDownRequestDateTime = doc["ServerShutDownRequestDateTime"].IsBsonNull ? null : (DateTime?)doc["ServerShutDownRequestDateTime"].ToUniversalTime();
             return item;
         }
+        
         public static IMongoCollection<BsonDocument> SolversCollectionBson = dbAOS.GetCollection<BsonDocument>(Globals.SOLVERS_COLLECTION_NAME);
         public static IMongoCollection<Solver> SolversCollection = dbAOS.GetCollection<Solver>(Globals.SOLVERS_COLLECTION_NAME);
-
-
+        
         public static int GetNextNewSolverId()
         {
             int max = 0;
@@ -37,11 +36,9 @@ namespace WebApiCSharp.Services
             return max + 1;
         }
         
-        //return false if the solver is not in the DB
         public static bool StopOrStartSolver(int solverId, bool IsStopSolver, float planTimePerAction)
         {
-            Solver solver = SolversCollection.Find<Solver>(
-                Builders<Solver>.Filter.Eq("SolverId", solverId)).FirstOrDefault();
+            Solver solver = SolversCollection.Find<Solver>(Builders<Solver>.Filter.Eq("SolverId", solverId)).FirstOrDefault();
             bool solverExist = solver != null;
             if(solverExist)
             {
@@ -65,9 +62,9 @@ namespace WebApiCSharp.Services
             
             return solverExist;
         }
+        
         public static List<Solver> Get()
         {
-             
             try
             {
                 List<Solver> olResult = new List<Solver>();
@@ -76,7 +73,6 @@ namespace WebApiCSharp.Services
                 foreach (var doc in results)
                 {
                     Solver item = GetSolverFromBson(doc);
-
                     olResult.Add(item);
                 }
                 return olResult;
