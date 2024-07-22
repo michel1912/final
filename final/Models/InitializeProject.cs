@@ -7,11 +7,8 @@ namespace WebApiCSharp.Models
     public class InitializeProject
     { 
         public string PLPsDirectoryPath { get; set; }
-
         public bool? RunWithoutRebuild { get; set; }
-
         public bool? OnlyGenerateCode { get; set; }
-
         public RosTargetProject RosTarget { get; set; } 
         public SolverConfiguration SolverConfiguration{ get; set; }
         public MiddlewareConfiguration MiddlewareConfiguration{ get; set; } 
@@ -21,7 +18,6 @@ namespace WebApiCSharp.Models
     {
         public string RosDistribution{get;set;}
         public string WorkspaceDirectortyPath { get; set; }
-
         public string TargetProjectLaunchFile { get; set; }
         public double? TargetProjectInitializationTimeInSeconds { get; set; }
         public List<string> RosTargetProjectPackages { get; set; }
@@ -49,19 +45,15 @@ namespace WebApiCSharp.Models
         public bool UseML { get; set; } 
         public bool UseSavedSarsopPolicy { get; set; } 
         public int NumOfSamplesPerStateActionToLearnModel { get; set; } 
-
         public bool LoadBeliefFromDB { get; set; } 
         public int NumOfParticles { get; set; }
-
         public int NumOfBeliefStateParticlesToSaveInDB { get; set; }
         public List<int> ActionsToSimulate { get; set; } 
         public bool IsInternalSimulation { get; set; }
         public float SimulateByMdpRate {get;set;}
         public bool ManualControl { get; set; }
-        
         public float PlanningTimePerMoveInSeconds{ get; set; }
         public int RolloutsCount{get;set;}
-
         public int Verbosity{ get; set; }
         public SolverConfiguration()
         {
