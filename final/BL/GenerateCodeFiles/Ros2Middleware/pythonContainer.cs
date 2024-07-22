@@ -4,7 +4,6 @@ namespace WebApiCSharp.GenerateCodeFiles;
 
 public class pythonContainer
 {
-
     public static string GetSetUpFilefoxy()
     {
         return @"
@@ -152,7 +151,7 @@ import threading  # Import threading module
 
 ";
     }
-    
+
     public static string Register_ModuleResponse()
     {
         return @"
@@ -425,7 +424,5 @@ def main(args=None):
                                                                                                ""IsInitialized"": isInit, ""UpdatingActionSequenceId"": ""initialization"",
                                                                                                ""ModuleResponseId"": ""initialization""},upsert=True)
 ";
-        
     }
-    
 }
