@@ -14,7 +14,6 @@ namespace WebApiCSharp.Models
         public string Event{ get; set; }
         public string Advanced { get; set; }
         public string Component{ get; set; }
-      
         public string Time{ get; set; }
     }
 
@@ -26,7 +25,6 @@ namespace WebApiCSharp.Models
         public string Event{ get; set; }
         public string Advanced { get; set; }
         public string Component{ get; set; }
-      
         public DateTime Time{ get; set; }
     }
 }
