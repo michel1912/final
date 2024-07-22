@@ -21,7 +21,6 @@ namespace WebApiCSharp.Services
                 foreach (var doc in results)
                 {
                     SolverAction item = new SolverAction();
-
                     item.ActionName = doc["ActionName"].ToString();
                     item.ActionDescription = doc["ActionDecription"].ToString();
                     item.ActionID = doc["ActionID"].AsInt32;
@@ -29,8 +28,6 @@ namespace WebApiCSharp.Services
                     foreach (var arrItem in doc["ActionConstantParameters"].AsBsonArray)
                     {
                         BsonDocument bParameterConst = arrItem.AsBsonDocument;
-
-
                         string[] sItems = bParameterConst.ToString().Replace(" ", "").Replace("{", "").Replace("}", "").Replace("\"", "").Split(",");
                         foreach (string sI in sItems)
                         {
@@ -39,8 +36,6 @@ namespace WebApiCSharp.Services
                             par.Value = sI.Split(":")[1];
                             item.ActionConstantParameters.Add(par);
                         }
-
-
                     }
                     olResult.Add(item);
                 }
