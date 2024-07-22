@@ -9,15 +9,14 @@ using WebApiCSharp.Models;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+
 namespace WebApiCSharp.GenerateCodeFiles
 {
-    
     public class BlackBoxTemplate
     {
-       
         public static string GetSingleFileModel(PLPsData data, bool forCppToPython = false)
         {
-            Dictionary<string, Dictionary<string, string>>temp1;
+            Dictionary<string, Dictionary<string, string>> temp1;
             List<string> temp2;
             int totalNumberOfActionsInProject;
             string file = @"
@@ -26,16 +25,16 @@ namespace WebApiCSharp.GenerateCodeFiles
 #include <tuple>
 #include <map>
 
-
 #include <cstdint>
 #include <iostream>
 #include <vector>
 #include <sstream>
 #include <unistd.h>
 #include <random>";
-if(forCppToPython)
-{
-    file += @"
+            
+            if (forCppToPython)
+            {
+                file += @"
 #include <iostream>
 #include <locale>
 #include <sys/time.h>
@@ -46,8 +45,9 @@ if(forCppToPython)
 #include <tuple>
 #include <string>
 namespace py = pybind11;";
-}
-file += @"
+            }
+
+            file += @"
 using namespace std;
 namespace aos_model {
 typedef bool anyValue;
@@ -107,10 +107,9 @@ bool Bernoulli(float p)
 	return rand <= p;
 }
 
-" + SolverFileTemplate.GetEnumMapHeaderFile(data, out temp1, true) + 
-    SolverFileTemplate.GetEnumMapCppFile(data,true) + Environment.NewLine 
-  + SolverFileTemplate.GetGetStateVarTypesHeaderEnumTypes(data) + @"
-
+" + SolverFileTemplate.GetEnumMapHeaderFile(data, out temp1, true) +
+                    SolverFileTemplate.GetEnumMapCppFile(data, true) + Environment.NewLine
+                    + SolverFileTemplate.GetGetStateVarTypesHeaderEnumTypes(data) + @"
 " + SolverFileTemplate.GetGetStateVarTypesHeaderCompoundTypes(data, true) + @"
 class State {
 public:
@@ -122,7 +121,6 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const State& state);
  
-
 	static double Weight(const std::vector<State*>& particles);
 
 	State* operator()(int state_id) {
@@ -132,7 +130,6 @@ public:
 
     bool __isTermianl = false;
 " + SolverFileTemplate.GetVariableDeclarationsForStateHeaderFile(data, true) + @"
-
 	public:
 		static void SetAnyValueLinks(State *state);
 };
@@ -144,7 +141,7 @@ State::~State() {}
 State* CopyToNewState(State* state)
 {
     State* s= new State();
-"+SolverFileTemplate.GetDeepCopyState(data)+@"
+" + SolverFileTemplate.GetDeepCopyState(data) + @"
     return s;
 }
 
@@ -158,18 +155,17 @@ State* prevState = new State();
 State* afterExtState = new State();
 
 " + SolverFileTemplate.GetActionManagerHeaderFile(data, true) + @"
-
 " + SolverFileTemplate.GetActionManagerCPpFile(data, out totalNumberOfActionsInProject, true) + Environment.NewLine
-+ SolverFileTemplate.GetPOMDPCPPFile(data, true) + Environment.NewLine + 
-SolverFileTemplate.GetProcessSpecialStatesFunction(data, true) +
-SolverFileTemplate.GetModelCppCreatStartStateFunction(data, null, true) +
-SolverFileTemplate.GetCheckPreconditionsForModelCpp(data, true) + Environment.NewLine +
- SolverFileTemplate.GetComputePreferredActionValueForModelCpp(data, true) + Environment.NewLine +
- SolverFileTemplate.GetSampleModuleExecutionTimeFunction(data, true) + Environment.NewLine +
- SolverFileTemplate.GetExtrinsicChangesDynamicModelFunction(data, true) + Environment.NewLine +
- SolverFileTemplate.GetModuleDynamicModelFunction(data, true) + Environment.NewLine + 
- SolverFileTemplate.GetCPPStepFunction(data, true, forCppToPython) + Environment.NewLine + 
- @"
+                    + SolverFileTemplate.GetPOMDPCPPFile(data, true) + Environment.NewLine +
+                    SolverFileTemplate.GetProcessSpecialStatesFunction(data, true) +
+                    SolverFileTemplate.GetModelCppCreatStartStateFunction(data, null, true) +
+                    SolverFileTemplate.GetCheckPreconditionsForModelCpp(data, true) + Environment.NewLine +
+                    SolverFileTemplate.GetComputePreferredActionValueForModelCpp(data, true) + Environment.NewLine +
+                    SolverFileTemplate.GetSampleModuleExecutionTimeFunction(data, true) + Environment.NewLine +
+                    SolverFileTemplate.GetExtrinsicChangesDynamicModelFunction(data, true) + Environment.NewLine +
+                    SolverFileTemplate.GetModuleDynamicModelFunction(data, true) + Environment.NewLine +
+                    SolverFileTemplate.GetCPPStepFunction(data, true, forCppToPython) + Environment.NewLine +
+                    @"
     State* InitEnv()
     {
         generator.seed(std::chrono::system_clock::now().time_since_epoch().count());
@@ -178,23 +174,23 @@ SolverFileTemplate.GetCheckPreconditionsForModelCpp(data, true) + Environment.Ne
         return state;
     }
  ";
- if(forCppToPython)
- {
- file +=@"
+            if (forCppToPython)
+            {
+                file += @"
 
 std::string EnvName()
 {
-    return """+data.ProjectName+@""";
+    return """ + data.ProjectName + @""";
 }
 
 std::string DocHash()
 {
-    return """+data.GetModelHash()+@""";
+    return """ + data.GetModelHash() + @""";
 }
 
 std::string Horizon()
 {
-    return """+data.Horizon+@""";
+    return """ + data.Horizon + @""";
 }
 
  vector<std::string> PrintActionsDescription()
@@ -206,17 +202,14 @@ std::string Horizon()
         ss << Prints::PrintActionDescription(ActionManager::actions[i]) << endl;
         res.push_back(Prints::PrintActionDescription(ActionManager::actions[i]));
     }
-    //return ss.str();
     return res;
 }
 
 PYBIND11_MODULE(aos_domain, m) {
-    "+ GetPyBindForTypes(data)+@"
+    " + GetPyBindForTypes(data) + @"
     py::class_<State>(m, ""State"")
-//    .def(py::init()) 
-"+GetStateVariableBindings(data)+@"
+" + GetStateVariableBindings(data) + @"
     .def(""__repr__"", &Prints::PrintState);
-    
     
     m.def(""horizon"", &Horizon);
     m.def(""hash"", &DocHash);
@@ -229,79 +222,92 @@ PYBIND11_MODULE(aos_domain, m) {
     m.def(""print_actions"", &PrintActionsDescription, ""print actions description"");
 }
 ";
- }
-file +=Environment.NewLine + "}";
+            }
 
-if(forCppToPython)
-{
-    file=file.Replace("AOSUtils::","");
-}
+            file += Environment.NewLine + "}";
+
+            if (forCppToPython)
+            {
+                file = file.Replace("AOSUtils::", "");
+            }
+
             return file;
         }
-public static string GetStateVariableBindings(PLPsData data)
-{
-    string result = "" + Environment.NewLine;
-    for(int i=0;i< data.GlobalVariableDeclarations.Count() ; i++)
-    {
-        GlobalVariableDeclaration d = data.GlobalVariableDeclarations[i];
-        if(d.IsActionParameterValue)
-        {
-            continue;
-        }
-        if(data.GlobalEnumTypes.Where(x=> x.TypeName == d.Type).Count()>0)
-        {
-            result += "    .def_property(\""+d.Name+"\", &State::get_"+d.Name+", &State::set_"+d.Name+")";
-        }
-        else
-        {
-            result += "    .def_readwrite(\""+d.Name+"\", &State::"+d.Name+")";    
-        }
-        result += Environment.NewLine;
-    }
-    return result;
-}
- public static string GetEnumTypeGetSetFunction(PLPsData data, string enumType, string fieldName)
-    {
-        string result="";
-        for(int i=0; i < data.GlobalEnumTypes.Count();i++)
-        {
-          if(data.GlobalEnumTypes[i].TypeName == enumType)
-          {
-            result += "        void set_"+fieldName+"( int c_) { "+fieldName+" = ("+enumType+")c_; }" + Environment.NewLine;
-            result += "        int get_"+fieldName+"()  { return (int)"+fieldName+"; }" + Environment.NewLine;
-            break;
-          }  
-        } 
-        return result;
-    }
 
-         private static string GetPyBindForTypes(PLPsData data)
-    {
-        string result = "";
-        for(int i=0;i< data.GlobalCompoundTypes.Count();i++)
+        public static string GetStateVariableBindings(PLPsData data)
         {
-            CompoundVarTypePLP t = data.GlobalCompoundTypes[i];
-            result += "    py::class_<"+t.TypeName+">(m, \""+t.TypeName+"\")" + Environment.NewLine;
-            for(int j=0;j< t.Variables.Count();j++)
+            string result = "" + Environment.NewLine;
+            
+            for (int i = 0; i < data.GlobalVariableDeclarations.Count(); i++)
             {
-                if(data.GlobalEnumTypes.Where(x=> x.TypeName == t.Variables[j].Type).Count()>0)
+                GlobalVariableDeclaration d = data.GlobalVariableDeclarations[i];
+                
+                if (d.IsActionParameterValue)
                 {
-                    result += "    .def_property(\""+t.Variables[j].Name+"\", &"+t.TypeName+"::get_"+t.Variables[j].Name+", &"+t.TypeName+"::set_"+t.Variables[j].Name+")";
+                    continue;
                 }
+
+                if (data.GlobalEnumTypes.Where(x => x.TypeName == d.Type).Count() > 0)
+                {
+                    result += "    .def_property(\"" + d.Name + "\", &State::get_" + d.Name + ", &State::set_" +
+                              d.Name + ")";
+                }
+                
                 else
                 {
-                    result += "    .def_readwrite(\""+t.Variables[j].Name+"\", &"+t.TypeName+"::"+t.Variables[j].Name+")";
+                    result += "    .def_readwrite(\"" + d.Name + "\", &State::" + d.Name + ")";
                 }
-                result += j == t.Variables.Count()-1 ? ";" : "";
+
                 result += Environment.NewLine;
             }
+
+            return result;
         }
-        return result;
-    }
 
-    }
+        public static string GetEnumTypeGetSetFunction(PLPsData data, string enumType, string fieldName)
+        {
+            string result = "";
+            
+            for (int i = 0; i < data.GlobalEnumTypes.Count(); i++)
+            {
+                if (data.GlobalEnumTypes[i].TypeName == enumType)
+                {
+                    result += "        void set_" + fieldName + "( int c_) { " + fieldName + " = (" + enumType + ")c_; }" + Environment.NewLine;
+                    result += "        int get_" + fieldName + "()  { return (int)" + fieldName + "; }" + Environment.NewLine;
+                    break;
+                }
+            }
 
-   
-        
+            return result;
+        }
+
+        private static string GetPyBindForTypes(PLPsData data)
+        {
+            string result = "";
+            
+            for (int i = 0; i < data.GlobalCompoundTypes.Count(); i++)
+            {
+                CompoundVarTypePLP t = data.GlobalCompoundTypes[i];
+                result += "    py::class_<" + t.TypeName + ">(m, \"" + t.TypeName + "\")" + Environment.NewLine;
+                
+                for (int j = 0; j < t.Variables.Count(); j++)
+                {
+                    if (data.GlobalEnumTypes.Where(x => x.TypeName == t.Variables[j].Type).Count() > 0)
+                    {
+                        result += "    .def_property(\"" + t.Variables[j].Name + "\", &" + t.TypeName + "::get_" +
+                                  t.Variables[j].Name + ", &" + t.TypeName + "::set_" + t.Variables[j].Name + ")";
+                    }
+                    else
+                    {
+                        result += "    .def_readwrite(\"" + t.Variables[j].Name + "\", &" + t.TypeName + "::" + t.Variables[j].Name + ")";
+                    }
+
+                    result += j == t.Variables.Count() - 1 ? ";" : "";
+                    result += Environment.NewLine;
+                }
+            }
+
+            return result;
+        }
+    }
 }
-
