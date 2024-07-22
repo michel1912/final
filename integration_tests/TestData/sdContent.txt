@@ -16,7 +16,7 @@ state__.robotLocation.discrete = ! __meetPrecondition || AOS.Bernoulli(0.1) ? -1
 if(state__.robotLocation.discrete == discreteDestination)
 { 
 state__.robotLocation.x = x; 
-state__.robotLocation.y = y; 
+state__.robotLocation.y = y;
 state__.robotLocation.z = z;
 }
 for(int i=0; i < state__.tVisitedLocationObjects.size();i++)
