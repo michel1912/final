@@ -58,13 +58,15 @@ it should be like this in .bashrc:
 Updating the AOS System
 To update your AOS system and integrate ROS 2, follow these steps:
 1. Download the Updated AOS System:
-- Visit the GitHub repository for the [final AOS system](https://github.com/final-AOS-system).
+- Visit the GitHub repository for the [[final AOS system](https://github.com/final-AOS-system).](https://github.com/michel1912/final)
 - Download the updated AOS system that implements ROS 2.
 2. Replace the Current AOS-WebAPI:
 - Navigate to the GitHub repository provided and download the
 AOS-WebAPI project.
 - Replace your existing AOS-WebAPI with the downloaded files from the
 new repository.
+3. go to this github :https://github.com/michel1912/ros2_Workspace
+and download the workspace_ros2.zip and do extract this folder and do colcon build in this folder in terminal
 3. Update the AM File:
 - Replace the old AM file with the new one included in the updated AOS
 system. The AM file defines the actions and behaviors of the AOS system.
