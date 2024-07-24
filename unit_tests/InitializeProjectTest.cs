@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-//using AutoFixture.NUnit3;
+using AutoFixture.NUnit3;
 using WebApiCSharp.GenerateCodeFiles;
 
 namespace unit_tests
@@ -48,7 +48,76 @@ namespace unit_tests
 
             _initializeProjectBL = new InitializeProjectBL();
         }
+        
+        [Test]
+        public void Test_GetBuildSolverBashFile_InvalidProjectName_ReturnsEmptyString()
+        {
+            string result = (string)typeof(InitializeProjectBL)
+                .GetMethod("GetBuildSolverBashFile",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                .Invoke(null, new object[] { "" });
 
+            Assert.That(result.Trim(), Is.EqualTo(string.Empty));
+        }
+        
+        [Test]
+        public void Test_InitializeProject_CatchesExceptions()
+        {
+            _initializeProject.PLPsDirectoryPath = "/invalid/path";
+
+            List<string> errors = new List<string>();
+            List<string> remarks;
+            string buildOutput;
+            string buildRosMiddlewareOutput;
+
+            Assert.DoesNotThrow(() => InitializeProjectBL.InitializeProject(_initializeProject, out errors, out remarks, out buildOutput, out buildRosMiddlewareOutput));
+
+            Assert.That(errors, Is.Not.Empty);
+            Assert.That(errors[0], Is.EqualTo("The PLPs directory '/invalid/path', is not a Directory!"));
+        }
+        
+        [Test]
+        public void Test_InitializeProject_WithRunWithoutRebuildOnlyGenerateCode()
+        {
+            _initializeProject.RunWithoutRebuild = true;
+            _initializeProject.OnlyGenerateCode = true;
+
+            List<string> errors;
+            List<string> remarks;
+            string buildOutput;
+            string buildRosMiddlewareOutput;
+
+            InitializeProjectBL.InitializeProject(_initializeProject, out errors, out remarks, out buildOutput, out buildRosMiddlewareOutput);
+
+            Assert.That(errors[0], Is.EqualTo("The PLPs directory '', is not a Directory!"));
+        }
+        
+        [Test]
+        public void Test_IsValidPLP_ReturnsFalseForInvalidPLP()
+        {
+            string invalidJson = "{\"InvalidMain\": { \"example\": \"data\" }}";
+            JsonDocument jsonDocument = JsonDocument.Parse(invalidJson);
+            List<string> errorMessages;
+            bool isValid = InitializeProjectBL.IsValidPLP(jsonDocument, out errorMessages);
+
+            Assert.That(isValid, Is.False);
+            Assert.That(errorMessages, Is.Not.Empty);
+            Assert.That(errorMessages[0], Is.EqualTo("no 'PlpMain' element"));
+        }
+        
+        [Test]
+        public void Test_GetBuildRosMiddlewareBashFile_InvalidPath_ReturnsEmptyScript()
+        {
+            _initializeProject.RosTarget.WorkspaceDirectortyPath = "";
+            string result = (string)typeof(InitializeProjectBL)
+                .GetMethod("GetBuildRosMiddlewareBashFile",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                .Invoke(null, new object[] { _initializeProject });
+
+            Assert.That(result.Trim(), Is.EqualTo("#!/bin/bash\n\ncd \ncatkin_make\nsource ~/.bashrc"));
+        }
+        
+        
         [Test]
         public void Test_GetRunSolverBashFile_ReturnsCorrectScript()
         {
