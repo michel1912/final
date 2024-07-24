@@ -6,6 +6,64 @@ namespace integration_tests
     public class GenerateRosMiddlewareTests
     {
         /////////////////////////////////////////////// < TranslateSD > ////////////////////////////////////////////////
+        
+        [Fact]
+        public void TranslateSD_InvalidProjectName_ThrowsException()
+        {
+            string sdContent = "project: !@#$%\nparameter: int value\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateSD("example", sdContent));
+        }
+
+        [Fact]
+        public void TranslateSD_MissingSyntaxPreconditionSection_ThrowsException()
+        {
+            string sdContent = "project: example\nparameter: int value\nprecondition\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateSD("example", sdContent));
+        }
+
+        [Fact]
+        public void TranslateSD_NonexistentParameterReference_ThrowsException()
+        {
+            string sdContent = @"
+project: example
+parameter: int value
+precondition:
+nonexistentParameter > 0";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateSD("example", sdContent));
+        }
+
+        [Fact]
+        public void TranslateSD_NonIntegerParameter_ThrowsException()
+        {
+            string sdContent = @"
+project: example
+parameter: int value
+precondition:
+value == 10.5";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateSD("example", sdContent));
+        }
+
+        [Fact]
+        public void TranslateSD_InvalidAvailableParametersCodeSyntax_ThrowsException()
+        {
+            string sdContent = @"
+project: example
+parameter: int value
+available_parameters_code:
+invalid_syntax";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateSD("example", sdContent));
+        }
+
+        [Fact]
+        public void TranslateSD_DuplicateProjectSection_ThrowsException()
+        {
+            string sdContent = @"
+project: example
+parameter: int value
+project: duplicate_example";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateSD("example", sdContent));
+        }
+        
         [Fact]
         public void TranslateSD_InvalidContent_ThrowsException()
         {
@@ -358,6 +416,35 @@ __meetPrecondition2 = x > 0;";
         }
 
         /////////////////////////////////////////////// < TranslateAM > ////////////////////////////////////////////////
+        
+        [Fact]
+        public void TranslateAM_InvalidProjectNameAndSyntax_ThrowsException()
+        {
+            string amContent = "project 2!@#$%\nresponse: eSuccess\nresponse_rule: skillSuccess and goal_reached\nmodule_activation: ros_service\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateAM("example", amContent));
+        }
+
+        [Fact]
+        public void TranslateAM_InvalidResponseFormat_ThrowsException()
+        {
+            string amContent = "project: example\nresponse: invalidResponse\nresponse_rule skillSuccess and goal_reached\nmodule_activation: ros_service\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateAM("example", amContent));
+        }
+
+        [Fact]
+        public void TranslateAM_DuplicateResponseSection_ThrowsException()
+        {
+            string amContent = "project: example\nresponse: eSuccess\nresponse: eFailed\nresponse_rule: skillSuccess and goal_reached\nmodule_activation: ros_service\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateAM("example", amContent));
+        }
+        
+        [Fact]
+        public void TranslateAM_InvalidAndEmptyResponseRule_ThrowsException()
+        {
+            string amContent = "project: example\nresponse: eSuccess\nresponse_rule\nmodule_activation: ros_service\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateAM("example", amContent));
+        }
+        
         [Fact]
         public void TranslateAM_MissingProjectLine_ThrowsException()
         {
@@ -419,15 +506,157 @@ __meetPrecondition2 = x > 0;";
         }
         
         /////////////////////////////////////////////// < TranslateEF > ////////////////////////////////////////////////
+        
+        [Fact]
+        public void TranslateEF_InvalidContent_ThrowsException()
+        {
+            string invalidEfContent = @"
+    project: example
+    invalid_line: this will cause an error";
+
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF("example", invalidEfContent));
+        }
+
+        [Fact]
+        public void TranslateEF_InvalidContents_ThrowsException()
+        {
+            string[] invalidEfContents = new[]
+            {
+                @"
+        project: example 
+        parameter: int discreteDestination
+        parameter: float x
+        parameter: float y
+        parameter: float z",
+
+                @"
+        project: example 
+        parameter: int discreteDestination
+        parameter: float x
+        invalid_line: this is not a valid parameter",
+
+                @"",
+
+                @"
+        project: example 
+        parameter: int discreteDestination
+        parameter: float x
+        parameter: float y
+        parameter: float z 
+        dynamic_model: 
+        state__.robotLocation.discrete = ! __meetPrecondition || AOS.Bernoulli(0.1) ? -1: discreteDestination;",
+
+                @"
+        project: example 
+        parameter: int discreteDestination
+        parameter: float x
+        parameter: float y
+        parameter: float z 
+        precondition:
+        __meetPrecondition = discreteDestination != state.robotLocation.discrete;
+        // missing closing semicolon on purpose",
+            };
+
+            foreach (var invalidEfContent in invalidEfContents)
+            {
+                Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF("example", invalidEfContent));
+            }
+        }
+
         [Fact]
         public void TranslateEF_EmptyContent_ThrowsException()
         {
-            string fileName = "EmptyEFContent.txt";
             string efContent = "";
 
-            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF(fileName, efContent));
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF("example", efContent));
         }
 
+        [Fact]
+        public void TranslateEF_MissingProject_ThrowsException()
+        {
+            string efContent = @"
+parameter: int discreteDestination
+parameter: float x
+parameter: float y
+parameter: float z 
+available_parameters_code: 
+__possibleParameters.push_back(std::make_tuple(1,-1.5744997262954712,-0.5154024362564087,-0.001373291015625));
+__possibleParameters.push_back(std::make_tuple(2,-1.6243184804916382,0.6617045402526855,-0.00143432617188)); 
+__possibleParameters.push_back(std::make_tuple(3,0.986030161381,0.610693752766,-0.00143432617188));
+
+precondition:
+__meetPrecondition = discreteDestination != state.robotLocation.discrete;
+violate_penalty: -10 
+dynamic_model: 
+state__.robotLocation.discrete = ! __meetPrecondition || AOS.Bernoulli(0.1) ? -1: discreteDestination;
+if(state__.robotLocation.discrete == discreteDestination)
+{ 
+state__.robotLocation.x = x; 
+state__.robotLocation.y = y; 
+state__.robotLocation.z = z;
+}
+for(int i=0; i < state__.tVisitedLocationObjects.size();i++)
+{
+    if(state__.tVisitedLocationObjects[i]->discrete == state__.robotLocation.discrete) 
+    {
+    state__.tVisitedLocationObjects[i]->visited = true;
+    break;
+    }
+}
+__moduleResponse = (state__.robotLocation.discrete == -1 && AOS.Bernoulli(0.8)) ? eFailed : eSuccess;
+__reward = state_.robotLocation.discrete == -1 ? -5 : -(sqrt(pow(state.robotLocation.x-x,2.0)+pow(state.robotLocation.y-y,2.0)))*100;
+if (state__.robotLocation.discrete == -1) __reward =  -10;
+";
+
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF("example", efContent));
+        }
+
+        [Fact]
+        public void TranslateEF_MultiplePreconditions_ThrowsException()
+        {
+            string efContent = @"
+project: example
+parameter: int discreteDestination
+parameter: float x
+precondition:
+__meetPrecondition1 = discreteDestination != state.robotLocation.discrete;
+precondition:
+__meetPrecondition2 = x > 0;";
+
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF("example", efContent));
+        }
+        
+        [Fact]
+        public void TranslateEF_MissingProjectHeader_ThrowsException()
+        {
+            string efContent =
+                "parameter: int discreteDestination\nparameter: float x\nparameter: float y\nparameter: float z\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF("example", efContent));
+        }
+
+        [Fact]
+        public void TranslateEF_InvalidSyntax_ThrowsException()
+        {
+            string efContent =
+                "project example\nparameter: int discreteDestination\nparameter: float x\nparameter: float y\nparameter: float z\navailable_parameters_code:\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF("example", efContent));
+        }
+
+        [Fact]
+        public void TranslateEF_SectionsInUnexpectedOrder_ThrowsException()
+        {
+            string efContent = "parameter: int value\nproject: example\navailable_parameters_code:\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF("example", efContent));
+        }
+
+        [Fact]
+        public void TranslateEF_InvalidParameterType_ThrowsException()
+        {
+            string efContent =
+                "projjeccct: example\nparameter: invalidType discreteDestination\nparameter: float x\nparameter: float y\nparameter: float z\n";
+            Assert.Throws<Exception>(() => TranslateSdlToJson.TranslateEF("example", efContent));
+        }
+        
         [Fact]
         public void TranslateEF_InvalidProject_ThrowsException()
         {
