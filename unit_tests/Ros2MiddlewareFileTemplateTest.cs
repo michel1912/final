@@ -16,9 +16,9 @@ namespace unit_tests
     public class Ros2MiddlewareFileTemplateTests
     {
         private InitializeProject _initializeProject;
-        private PLPsData _data; 
+        private PLPsData _data;
         private Ros2MiddlewareFileTemplate _template;
-    
+
         [SetUp]
         public void Setup()
         {
@@ -100,10 +100,10 @@ namespace unit_tests
             };
 
             _data.GlobalCompoundTypes = new List<CompoundVarTypePLP> { compoundType1, compoundType2 };
-            
+
             _template = new Ros2MiddlewareFileTemplate();
         }
-        
+
         private PLPsData CreatePLPsDataWithSingleRosServiceImport(string module, string func)
         {
             List<string> errors;
@@ -155,7 +155,7 @@ namespace unit_tests
 
             return data;
         }
-        
+
         /////////////////////////////////// <GetPackageFileTargetProjectDependencies> //////////////////////////////////
         [Test]
         public void TestGetPackageFileTargetProjectDependencies()
@@ -166,7 +166,8 @@ namespace unit_tests
                 "<build_depend>package2</build_depend>\n" +
                 "<exec_depend>package2</exec_depend>";
 
-            string result = Ros2MiddlewareFileTemplate.GetPackageFileTargetProjectDependencies(_initializeProject).Trim();
+            string result = Ros2MiddlewareFileTemplate.GetPackageFileTargetProjectDependencies(_initializeProject)
+                .Trim();
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -206,13 +207,14 @@ namespace unit_tests
         [Test]
         public void TestGetPackageFileTargetProjectDependencies_EmptyRosTargetPackages_ShouldReturnEmptyString()
         {
-            _initializeProject.RosTarget.RosTargetProjectPackages = new List<string>(); // Simulating empty RosTargetProjectPackages
+            _initializeProject.RosTarget.RosTargetProjectPackages =
+                new List<string>(); // Simulating empty RosTargetProjectPackages
 
             string result = Ros2MiddlewareFileTemplate.GetPackageFileTargetProjectDependencies(_initializeProject);
 
             Assert.That(result, Is.EqualTo(string.Empty));
         }
-        
+
         ///////////////////////////////////////// <GetImportsForMiddlewareNode> ////////////////////////////////////////
         [Test]
         public void TestGetImportsForMiddlewareNode_SingleRosServiceActivationImport()
@@ -222,7 +224,7 @@ namespace unit_tests
 
             Assert.That(result, Does.Contain("from module1 import func1"));
         }
-        
+
         [Test]
         public void TestGetImportsForMiddlewareNode_MultipleImports()
         {
@@ -254,19 +256,85 @@ namespace unit_tests
                 },
                 GlueLocalVariablesInitializations = new List<GlueLocalVariablesInitialization>()
             };
-            
+
             data.RosGlues.Add("glue1", rosGlue);
 
             string result = Ros2MiddlewareFileTemplate.GetImportsForMiddlewareNode(data, _initializeProject);
 
             Assert.That(result, Does.Contain("import func1"));
         }
-        
+
         //////////////////////////////////////////// <GetCompundTypeByName> ////////////////////////////////////////////
+
+        [Test]
+        public void TestGetCompundTypeByName_NullTypeName_ShouldReturnNull()
+        {
+            string compTypeName = null;
+            var result = Ros2MiddlewareFileTemplate.GetCompundTypeByName(compTypeName, _data);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void TestGetCompundTypeByName_TypeNameWithLeadingAndTrailingSpaces_ShouldReturnCorrectObject()
+        {
+            string compTypeName = " Type1 "; // existing type with spaces
+            var result = Ros2MiddlewareFileTemplate.GetCompundTypeByName(compTypeName.Trim(), _data);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.TypeName, Is.EqualTo(compTypeName.Trim()));
+            });
+        }
+
+        [Test]
+        public void TestGetCompundTypeByName_TypeNameWithSpecialCharacters_ShouldReturnCorrectObject()
+        {
+            string compTypeName = "Type@1"; // existing type with special characters
+            var result = Ros2MiddlewareFileTemplate.GetCompundTypeByName(compTypeName, _data);
+
+            Assert.Multiple(() => { Assert.That(result, Is.Null); });
+        }
+
+        [Test]
+        public void TestGetCompundTypeByName_TypeNameAsNumber_ShouldReturnCorrectObject()
+        {
+            string compTypeName = "123"; // existing type with numeric name
+            var result = Ros2MiddlewareFileTemplate.GetCompundTypeByName(compTypeName, _data);
+
+            Assert.Multiple(() => { Assert.That(result, Is.Null); });
+        }
+
+        [Test]
+        public void TestGetCompundTypeByName_WhitespaceTypeName_ShouldReturnNull()
+        {
+            string compTypeName = "   ";
+            var result = Ros2MiddlewareFileTemplate.GetCompundTypeByName(compTypeName.Trim(), _data);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void TestGetCompundTypeByName_MultipleMatches_ShouldReturnFirstMatch()
+        {
+            // Assuming there are multiple entries with the same type name
+            string compTypeName = "Type1";
+            var result = Ros2MiddlewareFileTemplate.GetCompundTypeByName(compTypeName, _data);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.TypeName, Is.EqualTo(compTypeName));
+                Assert.That(result, Is.EqualTo(_data.GlobalCompoundTypes.First(x => x.TypeName.Equals(compTypeName))));
+            });
+        }
+
+
         [Test]
         public void TestGetCompundTypeByName_WhenExists_ShouldReturnCorrectObject()
         {
-            string compTypeName = "Type1";  //existing type in _data.GlobalCompoundTypes
+            string compTypeName = "Type1"; //existing type in _data.GlobalCompoundTypes
             var result = Ros2MiddlewareFileTemplate.GetCompundTypeByName(compTypeName, _data);
 
             Assert.Multiple(() =>
@@ -284,7 +352,7 @@ namespace unit_tests
 
             Assert.That(result, Is.Null);
         }
-        
+
         [Test]
         public void TestGetCompundTypeByName_EmptyTypeName_ShouldReturnNull()
         {
@@ -293,7 +361,7 @@ namespace unit_tests
 
             Assert.That(result, Is.Null);
         }
-        
+
         /////////////////////////////////////////// <GetCompundVariableByName> /////////////////////////////////////////
         [Test]
         public void TestGetCompundVariableByName_NullCompoundType_ShouldReturnNull()
@@ -330,7 +398,7 @@ namespace unit_tests
             string subFields = "nonExistentField";
             PLPsData data = _data;
             var result = Ros2MiddlewareFileTemplate.GetCompundVariableByName(oComp, subFields, data);
-            
+
             Assert.That(result, Is.Null);
         }
 
@@ -344,7 +412,7 @@ namespace unit_tests
                     new CompoundVarTypePLP_Variable { Name = "field1", Type = "int" }
                 }
             };
-            
+
             string subFields = "field1";
             PLPsData data = _data;
 
@@ -369,7 +437,8 @@ namespace unit_tests
                 Assert.That(subFields, Is.Not.Null.And.Not.Empty, "subFields should not be null or empty");
             });
 
-            var result = Ros2MiddlewareFileTemplate.GetCompundVariableByName(_data.GlobalCompoundTypes[0], subFields, _data);
+            var result =
+                Ros2MiddlewareFileTemplate.GetCompundVariableByName(_data.GlobalCompoundTypes[0], subFields, _data);
 
             Assert.Multiple(() =>
             {
@@ -378,7 +447,7 @@ namespace unit_tests
                 Assert.That(result.Type, Is.EqualTo("int"));
             });
         }
-       
+
         ////////////////////////////////// <GetUnderlineLocalVariableNameTypeByVarName> ////////////////////////////////
         [Test]
         public void TestGetUnderlineLocalVariableNameTypeByVarName_CompoundType_ShouldReturnNull()
@@ -391,13 +460,15 @@ namespace unit_tests
             PLP plp = new PLP();
             string variableName = "state.globalVar.field1";
 
-            string result = Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
+            string result =
+                Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
 
             Assert.That(result, Is.Null);
         }
 
         [Test]
-        public void TestGetUnderlineLocalVariableNameTypeByVarName_ModuleParameter_ShouldReturnUnderlineLocalVariableType()
+        public void
+            TestGetUnderlineLocalVariableNameTypeByVarName_ModuleParameter_ShouldReturnUnderlineLocalVariableType()
         {
             PLP plp = new PLP
             {
@@ -408,7 +479,8 @@ namespace unit_tests
             };
 
             string variableName = "param1.field1.subField";
-            string result = Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
+            string result =
+                Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
 
             Assert.That(result, Is.Null);
         }
@@ -418,42 +490,45 @@ namespace unit_tests
         {
             PLP plp = new PLP();
             string variableName = "state.nonExistingVar";
-            string result = Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
+            string result =
+                Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
 
             Assert.That(result, Is.Null);
         }
-        
+
         [Test]
         public void TestGetUnderlineLocalVariableNameTypeByVarName_EmptyVariableName_ShouldReturnNull()
         {
             _data.GlobalVariableDeclarations = new List<GlobalVariableDeclaration>
             {
-                new GlobalVariableDeclaration { Name = "globalVar", Type = PLPsData.ANY_VALUE_TYPE_NAME, UnderlineLocalVariableType = "int" }
+                new GlobalVariableDeclaration
+                    { Name = "globalVar", Type = PLPsData.ANY_VALUE_TYPE_NAME, UnderlineLocalVariableType = "int" }
             };
 
             PLP plp = new PLP();
             string variableName = "";
-            string result = Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
+            string result =
+                Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
 
             Assert.That(result, Is.Null);
         }
-        
+
         [Test]
-        public void TestGetUnderlineLocalVariableNameTypeByVarName_GlobalVarDeclared_ShouldReturnUnderlineLocalVariableType()
+        public void
+            TestGetUnderlineLocalVariableNameTypeByVarName_GlobalVarDeclared_ShouldReturnUnderlineLocalVariableType()
         {
             _data.GlobalVariableDeclarations = new List<GlobalVariableDeclaration>
             {
-                new GlobalVariableDeclaration { Name = "globalVar", Type = PLPsData.ANY_VALUE_TYPE_NAME, UnderlineLocalVariableType = "int" }
+                new GlobalVariableDeclaration
+                    { Name = "globalVar", Type = PLPsData.ANY_VALUE_TYPE_NAME, UnderlineLocalVariableType = "int" }
             };
 
             PLP plp = new PLP();
             string variableName = "state.globalVar";
-            string result = Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
+            string result =
+                Ros2MiddlewareFileTemplate.GetUnderlineLocalVariableNameTypeByVarName(_data, plp, variableName);
 
             Assert.That(result, Is.EqualTo("int"));
         }
-        
-        
-       
     }
 }
